@@ -33,8 +33,8 @@ class Game:
         self.black['R1'] = Piece('black', 'R1', [0,7])
         self.black['N1'] = Piece('black', 'N1', [1,7])
         self.black['B1'] = Piece('black', 'B1', [2,7])
-        self.black['Q'] = Piece('black', 'Q', [3,7])
-        self.black['K'] = Piece('black', 'K', [4,7])
+        self.black['Q']  = Piece('black', 'Q', [3,7])
+        self.black['K']  = Piece('black', 'K', [4,7])
         self.black['B2'] = Piece('black', 'B2', [5,7])
         self.black['N2'] = Piece('black', 'N2', [6,7])
         self.black['R2'] = Piece('black', 'R2', [7,7])
@@ -44,15 +44,14 @@ class Game:
         self.white['R1'] = Piece('white', 'R1', [0,0])
         self.white['N1'] = Piece('white', 'N1', [1,0])
         self.white['B1'] = Piece('white', 'B1', [2,0])
-        self.white['Q'] = Piece('white', 'Q', [3,0])
-        self.white['K'] = Piece('white', 'K', [4,0])
+        self.white['Q']  = Piece('white', 'Q', [3,0])
+        self.white['K']  = Piece('white', 'K', [4,0])
         self.white['B2'] = Piece('white', 'B2', [5,0])
         self.white['N2'] = Piece('white', 'N2', [6,0])
         self.white['R2'] = Piece('white', 'R2', [7,0])
         for i in range(1,9):
             self.white['P' + str(i)] = Piece('white', 'P' + str(i), [i-1, 1])
-        #self.white['K'].position = [4,2]
-        #self.black['R1'].position = [0,2]
+        
 
     def otherSide(self, piece):            #Returns dictionary of same team as passed piece
         if piece.color == 'black':
@@ -199,10 +198,26 @@ class Game:
         for piece in self.white:
             self.otherPiece(self.ownPiece(self.clean(self.allMoves(self.white[piece]))))
             self.white[piece].simpleMoveMaker()         #Removes outside array from Moves array, makes simpler to implement possible moves.
+            if piece == 'R1':
+                if self.white[piece].movesDone == 0 and self.white['K'].movesDone == 0: 
+                    if [3,0] in self.white[piece].simpleMoves:
+                        self.white['K'].simpleMoves.append([2,0])
+            if piece == 'R2':
+                if self.white[piece].movesDone == 0 and self.white['K'].movesDone == 0: 
+                    if [5,0] in self.white[piece].simpleMoves:
+                        self.white['K'].simpleMoves.append([6,0])
     
         for piece in self.black:
             self.otherPiece(self.ownPiece(self.clean(self.allMoves(self.black[piece]))))
             self.black[piece].simpleMoveMaker()
+            if piece == 'R1':
+                if self.black[piece].movesDone == 0 and self.white['K'].movesDone == 0: 
+                    if [3,7] in self.black[piece].simpleMoves:
+                        self.white['K'].simpleMoves.append([2,7])
+            if piece == 'R2':
+                if self.black[piece].movesDone == 0 and self.white['K'].movesDone == 0: 
+                    if [5,7] in self.black[piece].simpleMoves:
+                        self.white['K'].simpleMoves.append([6,7])
     
     def getPiece(self, position):          #Gets piece at a board position
         for piece in self.black.values():
@@ -238,6 +253,9 @@ class Game:
     def move(self, piece, move):
         self.ownSide(piece)[piece.piece].position = move       
         self.ownSide(piece)[piece.piece].movesDone +=1
+        self.possibleMoves()
+        #en passant check
+        self.moveChecker()
 
     def update(self):                      #Updates the board object
         self.possibleMoves()
@@ -247,7 +265,7 @@ board = Game()
 
 board.update()
 
-#print(board.white['K'].simpleMoves)
+
 
 # board.move(board.white['K'], [3,6])
 # board.update()
