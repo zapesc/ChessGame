@@ -1,3 +1,5 @@
+# Need to add en passant and castling
+
 import copy
 
 class Piece():
@@ -52,19 +54,19 @@ class Game:
         #self.white['K'].position = [4,2]
         #self.black['R1'].position = [0,2]
 
-    def otherSide(self, piece):
+    def otherSide(self, piece):            #Returns dictionary of same team as passed piece
         if piece.color == 'black':
             return self.white
         if piece.color == 'white':
             return self.black
     
-    def ownSide(self, piece):
+    def ownSide(self, piece):              ##Returns dictionary of other team of passed piece
         if piece.color == 'black':
             return self.black
         if piece.color == 'white':
             return self.white
             
-    def allMoves(self, piece):             #Returns all possible moves for a piece
+    def allMoves(self, piece):             #Returns all standard moves for a piece, in a series of arrays
         if piece.piece[0]=='K':
             x = piece.position[0]
             y = piece.position[1]
@@ -148,7 +150,7 @@ class Game:
             return piece
         return piece
 
-    def clean(self, piece):                #Removes invalid points from array of Moves
+    def clean(self, piece):                #Removes invalid points (outside of board) from array of Moves
         moves = []
         for i in range(len(piece.possibleMoves)):
             direction = []
@@ -196,7 +198,7 @@ class Game:
     def possibleMoves(self):               #Sets all valid moves to each piece
         for piece in self.white:
             self.otherPiece(self.ownPiece(self.clean(self.allMoves(self.white[piece]))))
-            self.white[piece].simpleMoveMaker()
+            self.white[piece].simpleMoveMaker()         #Removes outside array from Moves array, makes simpler to implement possible moves.
     
         for piece in self.black:
             self.otherPiece(self.ownPiece(self.clean(self.allMoves(self.black[piece]))))
