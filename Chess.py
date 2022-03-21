@@ -288,9 +288,9 @@ class Game:
 # -------------------------Testing------------------------------
 
 
- board = Game()
+#board = Game()
 
- #board.update()
+#board.update()
 
 # board.move(board.white['P1'], [2,4])
 # print(board.white['P1'].pawnAttackMoves)
