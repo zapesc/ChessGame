@@ -236,10 +236,10 @@ class Game:
         possible = False
         if color == 'white':
             for piece in original.white:
-                new = copy.deepcopy(original)
                 moves = []
                 for move in original.white[piece].simpleMoves:
-                    new.white[piece].position = move
+                    new = copy.deepcopy(original)
+                    new.capture(new.white[piece],move)
                     new.possibleMoves()
                     if not new.isCheck(new.white['K']):
                         moves.append(move)
@@ -248,10 +248,10 @@ class Game:
                 self.white[piece].simpleMoves = moves
         else:
             for piece in original.black:
-                new = copy.deepcopy(original)
                 moves = []
                 for move in original.black[piece].simpleMoves:
-                    new.black[piece].position = move
+                    new = copy.deepcopy(original)
+                    new.capture(new.black[piece],move)
                     new.possibleMoves()
                     if not new.isCheck(new.black['K']):
                         moves.append(move)
@@ -260,10 +260,15 @@ class Game:
                 self.black[piece].simpleMoves = moves
         return possible
 
-    def move(self, piece, move):           #Moves a piece and updates board
-        previousPos = piece.position
+    def capture(self, piece, move):
+        if self.getPiece(move) != None:
+            self.getPiece(move).position = [9,9]
         piece.position = move       
         piece.movesDone +=1
+
+    def move(self, piece, move):           #Moves a piece and updates board
+        previousPos = piece.position
+        self.capture(piece,move)
         self.possibleMoves()
         #en passant check
         if piece.piece[0] == 'P' and piece.movesDone == 1:
@@ -288,19 +293,24 @@ class Game:
 # -------------------------Testing------------------------------
 
 
-board = Game()
+# board = Game()
 
-#board.update()
+# #board.update()
 
-board.move(board.white['K'], [1,2])
-board.move(board.white['P2'], [9,9])
-board.move(board.white['N1'], [9,9])
-board.move(board.white['B1'], [9,9])
-board.move(board.white['Q'], [9,9])
-board.move(board.black['R1'], [0,2])
-board.move(board.black['R2'], [0,3])
-print(board.winner)
-print(board.white['K'].simpleMoves)
+# board.move(board.white['K'], [1,0])
+# board.move(board.white['P2'], [9,9])
+# board.move(board.white['P1'], [9,9])
+# board.move(board.white['N1'], [9,9])
+# board.move(board.white['B1'], [9,9])
+# board.move(board.white['Q'], [9,9])
+# board.move(board.white['R1'], [9,9])
+# print(board.white['K'].simpleMoves)
+
+# board.move(board.black['R1'], [0,0])
+# board.move(board.black['R2'], [0,1])
+# print(board.winner)
+# print(board.white['K'].simpleMoves)
+# print(board.black['R1'].simpleMoves)
 # print(board.white['P1'].pawnAttackMoves)
 # board.move(board.black['P4'], [3,4])
 
