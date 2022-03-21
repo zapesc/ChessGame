@@ -51,6 +51,10 @@ class Game:
         self.white['R2'] = Piece('white', 'R2', [7,0])
         for i in range(1,9):
             self.white['P' + str(i)] = Piece('white', 'P' + str(i), [i-1, 1])
+        # self.white['N2'].position = [8,8]
+        # self.white['B2'].position = [8,8]
+        # self.white['P7'].position = [8,8]
+        # self.black['R1'].position = [6,5]
         
 
     def otherSide(self, piece):            #Returns dictionary of same team as passed piece
@@ -250,11 +254,21 @@ class Game:
                      moves.append(move)
             self.black[piece].simpleMoves = moves
 
-    def move(self, piece, move):
-        self.ownSide(piece)[piece.piece].position = move       
-        self.ownSide(piece)[piece.piece].movesDone +=1
+    def move(self, piece, move):           #Moves a piece and updates board
+        previousPos = piece.position
+        piece.position = move       
+        piece.movesDone +=1
         self.possibleMoves()
         #en passant check
+        if piece.piece[0] == 'P' and piece.movesDone == 1:
+            if piece.color == 'black':
+                for i in range(1,9):
+                    if [previousPos[0], previousPos[1] - 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] - 1] not in self.otherSide(piece)['P' + str(i)].simpleMoves:
+                        self.otherSide(piece)['P' + str(i)].simpleMoves.append([previousPos[0], previousPos[1] - 1])
+            if piece.color == 'white':
+                for i in range(1,9):
+                    if [previousPos[0], previousPos[1] + 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] + 1] not in self.otherSide(piece)['P' + str(i)].simpleMoves:
+                        self.otherSide(piece)['P' + str(i)].simpleMoves.append([previousPos[0], previousPos[1] + 1])
         self.moveChecker()
 
     def update(self):                      #Updates the board object
@@ -265,8 +279,14 @@ board = Game()
 
 board.update()
 
+# board.move(board.white['P1'], [2,4])
+# print(board.white['P1'].pawnAttackMoves)
+# board.move(board.black['P4'], [3,4])
 
-
+# print(board.white['P1'].simpleMoves)
+# print(board.black['P4'].position)
+# print(board.black['P4'].movesDone)
+# print(board.white['K'].simpleMoves)
 # board.move(board.white['K'], [3,6])
 # board.update()
 # print(board.white['K'].position)
