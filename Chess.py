@@ -256,7 +256,7 @@ class Game:
                     if not new.isCheck(new.black['K']):
                         moves.append(move)
                     if moves!=[]:
-                    possible = True
+                        possible = True
                 self.black[piece].simpleMoves = moves
         return possible
 
@@ -275,7 +275,7 @@ class Game:
                 for i in range(1,9):
                     if [previousPos[0], previousPos[1] + 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] + 1] not in self.otherSide(piece)['P' + str(i)].simpleMoves:
                         self.otherSide(piece)['P' + str(i)].simpleMoves.append([previousPos[0], previousPos[1] + 1])
-        if self.moveChecker(otherSide(piece)['K'].color) == False:                  #Checks for checkmate
+        if self.moveChecker(self.otherSide(piece)['K'].color) == False:                  #Checks for checkmate
             self.winner = piece.color
 
     def update(self):                      #Updates the board object
@@ -288,11 +288,19 @@ class Game:
 # -------------------------Testing------------------------------
 
 
-#board = Game()
+board = Game()
 
 #board.update()
 
-# board.move(board.white['P1'], [2,4])
+board.move(board.white['K'], [1,2])
+board.move(board.white['P2'], [9,9])
+board.move(board.white['N1'], [9,9])
+board.move(board.white['B1'], [9,9])
+board.move(board.white['Q'], [9,9])
+board.move(board.black['R1'], [0,2])
+board.move(board.black['R2'], [0,3])
+print(board.winner)
+print(board.white['K'].simpleMoves)
 # print(board.white['P1'].pawnAttackMoves)
 # board.move(board.black['P4'], [3,4])
 
