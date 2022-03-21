@@ -1,6 +1,8 @@
 from Chess import *
 import tkinter as tk
 from tkinter import Frame, PhotoImage, Toplevel, ttk
+import tkmacosx as tkm
+import os
 
 
 board = Game()
@@ -10,6 +12,10 @@ board = Game()
 my_window = tk.Tk()
 my_window.geometry('1200x850')
 my_window.title("Chess")
+my_window.columnconfigure(0, weight=4)
+my_window.columnconfigure(1, weight=1)
+my_window.rowconfigure(0, weight=4)
+my_window.rowconfigure(1, weight=1)
 
 wking = PhotoImage(file = r"ChessPieces/WK.png")
 bking = PhotoImage(file = r"ChessPieces/BK.png")
@@ -26,13 +32,19 @@ bpawn = PhotoImage(file = r"ChessPieces/BP.png")
 none = PhotoImage(file = r"ChessPieces/None.png")
 
 
-my_window.resizable(0, 0)
+my_window.resizable(True, True)
 
-main_frame = Frame(my_window)
-main_frame.grid(row=1, column=1, sticky="nsew")
+# main_frame = Frame(my_window)
+# main_frame.grid(row=1, column=1, sticky="nsew")
+# main_frame.columnconfigure(0, weight=4)
+# main_frame.columnconfigure(1, weight=1)
 
-left_frame = Frame(main_frame)
+left_frame = Frame(my_window)
 left_frame.grid(row=0, column=0, sticky="nsew")
+for i in range(9):
+    left_frame.columnconfigure(i, weight=1)
+    left_frame.rowconfigure(i, weight=1)
+
 
 boardArr = []
 
@@ -45,11 +57,17 @@ for i in range(8):
 for i in range(8):
     for j in range(8):
         if not (i + j)%2 == 0:
-            boardArr[i][j] = tk.Button(left_frame, bg='#E1FF99', fg='Black')
+            if os.name == 'posix':
+                boardArr[i][j] = tkm.Button(left_frame, bg='#E1FF99', fg='Black')
+            else:
+                boardArr[i][j] = tk.Button(left_frame, bg='#E1FF99', fg='Black')
             boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5)
             boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
         else:
-            boardArr[i][j] = tk.Button(left_frame, bg='#ffffff', fg='Black')
+            if os.name == 'posix':
+                boardArr[i][j] = tkm.Button(left_frame, bg='#ffffff', fg='Black')
+            else: 
+                boardArr[i][j] = tk.Button(left_frame, bg='#ffffff', fg='Black')
             boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5)
             boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
 
@@ -86,14 +104,21 @@ def setBoard():
 
 setBoard()
 
-chat_frame = Frame(main_frame)
-chat_frame.grid(row=0, column=1, sticky = 'nsew')
+chat_frame = tk.LabelFrame(my_window, text="Chat Room")
+chat_frame.grid(row=0, column=1, sticky = 'nsew', padx=10, pady=10)
 chat = tk.Text(chat_frame, height = 47, width = 40)
-chat.grid(row=0, column =0, sticky = 'nsew' , padx=10, pady=10)
-chat.insert(tk.END, '------- Welcome to the Chat Room ------- \n ')
+chat_frame.columnconfigure(0, weight=4)
+chat_frame.columnconfigure(1, weight=1)
+chat_frame.rowconfigure(0, weight=1)
+
+chat.grid(row=0, column =0, sticky = 'nsew' , padx=10, pady=5)
+chat.insert(tk.END, 'Send a message!\n ')
 chat.configure(state='disabled')
 input_txt = tk.Text(chat_frame, height = 3, width = 40)
 input_txt.grid(row=1, column =0, sticky = 'nsew' , padx=10, pady=10)
+
+
+
 
 def MsgReceive(user,msg):
     chat.configure(state='normal')
