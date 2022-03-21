@@ -1,11 +1,9 @@
-# Need to add en passant and castling
-
 import copy
 
 class Piece():
     def __init__(self, color, piece, pos):
         self.color = color
-        self. piece =  piece
+        self.piece =  piece
         self.position = pos
         self.movesDone = 0
         self.value = 0
@@ -29,6 +27,8 @@ class Game:
 
         self.white = {'R1':0, 'N1':0, 'B1':0, 'Q':0, 'K':0, 'B2':0, 'N2':0, 'R2':0,
              'P1':0, 'P2':0, 'P3':0, 'P4':0, 'P5':0, 'P6':0, 'P7':0, 'P8':0}
+        
+        self.winner = "none"
 
         self.black['R1'] = Piece('black', 'R1', [0,7])
         self.black['N1'] = Piece('black', 'N1', [1,7])
@@ -56,7 +56,6 @@ class Game:
         # self.white['P7'].position = [8,8]
         # self.black['R1'].position = [6,5]
         
-
     def otherSide(self, piece):            #Returns dictionary of same team as passed piece
         if piece.color == 'black':
             return self.white
@@ -232,27 +231,34 @@ class Game:
                 return piece
         return None
         
-    def moveChecker(self):                 #Removes moves that lead to own check from options 
+    def moveChecker(self, color):          #Removes moves that lead to own check from options 
         original = copy.deepcopy(self)
-
-        for piece in original.white:
-            new = copy.deepcopy(original)
-            moves = []
-            for move in original.white[piece].simpleMoves:
-                new.white[piece].position = move
-                new.possibleMoves()
-                if not new.isCheck(new.white['K']):
-                    moves.append(move)
-            self.white[piece].simpleMoves = moves
-        for piece in original.black:
-            new = copy.deepcopy(original)
-            moves = []
-            for move in original.black[piece].simpleMoves:
-                new.black[piece].position = move
-                new.possibleMoves()
-                if not new.isCheck(new.black['K']):
-                     moves.append(move)
-            self.black[piece].simpleMoves = moves
+        possible = False
+        if color == 'white':
+            for piece in original.white:
+                new = copy.deepcopy(original)
+                moves = []
+                for move in original.white[piece].simpleMoves:
+                    new.white[piece].position = move
+                    new.possibleMoves()
+                    if not new.isCheck(new.white['K']):
+                        moves.append(move)
+                if moves!=[]:
+                    possible = True
+                self.white[piece].simpleMoves = moves
+        else:
+            for piece in original.black:
+                new = copy.deepcopy(original)
+                moves = []
+                for move in original.black[piece].simpleMoves:
+                    new.black[piece].position = move
+                    new.possibleMoves()
+                    if not new.isCheck(new.black['K']):
+                        moves.append(move)
+                    if moves!=[]:
+                    possible = True
+                self.black[piece].simpleMoves = moves
+        return possible
 
     def move(self, piece, move):           #Moves a piece and updates board
         previousPos = piece.position
@@ -269,11 +275,12 @@ class Game:
                 for i in range(1,9):
                     if [previousPos[0], previousPos[1] + 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] + 1] not in self.otherSide(piece)['P' + str(i)].simpleMoves:
                         self.otherSide(piece)['P' + str(i)].simpleMoves.append([previousPos[0], previousPos[1] + 1])
-        self.moveChecker()
+        if self.moveChecker(otherSide(piece)['K'].color) == False:                  #Checks for checkmate
+            self.winner = piece.color
 
     def update(self):                      #Updates the board object
         self.possibleMoves()
-        self.moveChecker()
+        #self.moveChecker()
 
 
 
@@ -281,9 +288,9 @@ class Game:
 # -------------------------Testing------------------------------
 
 
-# board = Game()
+ board = Game()
 
-# board.update()
+ #board.update()
 
 # board.move(board.white['P1'], [2,4])
 # print(board.white['P1'].pawnAttackMoves)
