@@ -275,9 +275,15 @@ class Game:
         self.possibleMoves()
         self.moveChecker()
 
-board = Game()
 
-board.update()
+
+
+# -------------------------Testing------------------------------
+
+
+# board = Game()
+
+# board.update()
 
 # board.move(board.white['P1'], [2,4])
 # print(board.white['P1'].pawnAttackMoves)
