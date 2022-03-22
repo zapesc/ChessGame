@@ -1,3 +1,6 @@
+from turtle import color
+
+from setuptools import Command
 from Chess import *
 import tkinter as tk
 from tkinter import Frame, PhotoImage, Toplevel, ttk
@@ -6,6 +9,7 @@ import os
 
 
 board = Game()
+board.update()
 
 
 # root window
@@ -54,6 +58,37 @@ for i in range(8):
         zeroes.append(0)
     boardArr.append(zeroes)
 
+selectedPiece = None
+nextMove = 'white'
+def showMoves(pos):
+    global selectedPiece
+    global nextMove
+    if selectedPiece != None:
+        if pos in selectedPiece.simpleMoves:
+            board.move(selectedPiece, pos)
+            setBoard()
+            if nextMove == 'white':
+                nextMove = 'black'
+            else:
+                nextMove = 'white'
+            selectedPiece = None
+
+    for i in range(8):
+        for j in range(8):
+            if not (i + j)%2 == 0:
+                boardArr[i][j].configure(bg='#E1FF99')
+            else:
+                boardArr[i][j].configure(bg='#ffffff')
+    
+    if board.getPiece(pos) != None and board.getPiece(pos).color == nextMove:
+        selectedPiece = board.getPiece(pos)
+        for move in selectedPiece.simpleMoves:
+            boardArr[move[0]][move[1]].configure(bg='#aa00ff')
+        #boardArr[pos[0]][pos[1]].configure
+    else:
+        selectedPiece = None
+        
+
 for i in range(8):
     for j in range(8):
         if not (i + j)%2 == 0:
@@ -61,14 +96,14 @@ for i in range(8):
                 boardArr[i][j] = tkm.Button(left_frame, bg='#E1FF99', fg='Black')
             else:
                 boardArr[i][j] = tk.Button(left_frame, bg='#E1FF99', fg='Black')
-            boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5)
+            boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:showMoves([i,j]))
             boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
         else:
             if os.name == 'posix':
                 boardArr[i][j] = tkm.Button(left_frame, bg='#ffffff', fg='Black')
             else: 
                 boardArr[i][j] = tk.Button(left_frame, bg='#ffffff', fg='Black')
-            boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5)
+            boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:showMoves([i,j]))
             boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
 
 def setBoard():

@@ -108,22 +108,29 @@ class Game:
             moves = []
             captures = []
             if piece.color == 'white':
-                moves.append([x, y +1])
-                if piece.movesDone == 0 and self.getPiece(piece.position) != None:
+                if self.getPiece([x, y+1]) == None:
+                    moves.append([x, y +1])
+                if piece.movesDone == 0 and self.getPiece([x, y+2]) == None:
                     moves.append([x, y+2])
                 for take in self.black.values():
                     if take.position == [x+1, y+1] or take.position == [x-1, y+1]:
                         captures.append(take.position)
                 piece.pawnAttackMoves = [[x+1, y+1], [x-1, y+1]]
             if piece.color == 'black':
-                moves.append([x, y-1])
-                if piece.movesDone == 0 and self.getPiece(piece.position) != None:
+                if self.getPiece([x, y-1]) == None:
+                    moves.append([x, y-1])
+                if piece.movesDone == 0 and self.getPiece([x, y-2]) == None:
                     moves.append([x, y-2])
-                for take in self.black.values():
+                for take in self.white.values():
                     if take.position == [x+1, y-1] or take.position == [x-1, y-1]:
                         captures.append(take.position)
                 piece.pawnAttackMoves = [[x+1, y-1], [x-1, y-1]]
-            piece.possibleMoves = [moves, captures]
+            piece.possibleMoves = []
+            for move in moves:
+                piece.possibleMoves.append([move])
+            for move in captures:
+                piece.possibleMoves.append([move])
+            #piece.possibleMoves = [moves, captures]
 
         if piece.piece[0] == 'B':
             tr = []
@@ -280,8 +287,12 @@ class Game:
                 for i in range(1,9):
                     if [previousPos[0], previousPos[1] + 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] + 1] not in self.otherSide(piece)['P' + str(i)].simpleMoves:
                         self.otherSide(piece)['P' + str(i)].simpleMoves.append([previousPos[0], previousPos[1] + 1])
-        if self.moveChecker(self.otherSide(piece)['K'].color) == False:                  #Checks for checkmate
-            self.winner = piece.color
+                        
+        if self.moveChecker(self.otherSide(piece)['K'].color) == False:                  #Checks for end
+            if self.isCheck(self.otherSide(piece)['K']):
+                self.winner = piece.color
+            else:
+                self.winner = 'stalemate'
 
     def update(self):                      #Updates the board object
         self.possibleMoves()
