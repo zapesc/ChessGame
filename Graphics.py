@@ -13,13 +13,13 @@ board.update()
 
 
 # root window
-my_window = tk.Tk()
-my_window.geometry('1200x850')
-my_window.title("Chess")
-my_window.columnconfigure(0, weight=4)
-my_window.columnconfigure(1, weight=1)
-my_window.rowconfigure(0, weight=4)
-my_window.rowconfigure(1, weight=1)
+main_window = tk.Tk()
+main_window.geometry('1200x850')
+main_window.title("Chess")
+main_window.columnconfigure(0, weight=4)
+main_window.columnconfigure(1, weight=1)
+main_window.rowconfigure(0, weight=4)
+main_window.rowconfigure(1, weight=1)
 
 wking = PhotoImage(file = r"ChessPieces/WK.png")
 bking = PhotoImage(file = r"ChessPieces/BK.png")
@@ -34,16 +34,17 @@ brook = PhotoImage(file = r"ChessPieces/BR.png")
 wpawn = PhotoImage(file = r"ChessPieces/WP.png")
 bpawn = PhotoImage(file = r"ChessPieces/BP.png")
 none = PhotoImage(file = r"ChessPieces/None.png")
+circle = PhotoImage(file = r"ChessPieces/Move.png")
 
 
-my_window.resizable(True, True)
+main_window.resizable(True, True)
 
-# main_frame = Frame(my_window)
+# main_frame = Frame(main_window)
 # main_frame.grid(row=1, column=1, sticky="nsew")
 # main_frame.columnconfigure(0, weight=4)
 # main_frame.columnconfigure(1, weight=1)
 
-left_frame = Frame(my_window)
+left_frame = Frame(main_window)
 left_frame.grid(row=0, column=0, sticky="nsew")
 for i in range(9):
     left_frame.columnconfigure(i, weight=1)
@@ -83,7 +84,7 @@ def showMoves(pos):
     if board.getPiece(pos) != None and board.getPiece(pos).color == nextMove:
         selectedPiece = board.getPiece(pos)
         for move in selectedPiece.simpleMoves:
-            boardArr[move[0]][move[1]].configure(bg='#aa00ff')
+            boardArr[move[0]][move[1]].configure(bg = '#7f7f7f')
         #boardArr[pos[0]][pos[1]].configure
     else:
         selectedPiece = None
@@ -139,7 +140,7 @@ def setBoard():
 
 setBoard()
 
-chat_frame = tk.LabelFrame(my_window, text="Chat Room")
+chat_frame = tk.LabelFrame(main_window, text="Chat Room")
 chat_frame.grid(row=0, column=1, sticky = 'nsew', padx=10, pady=10)
 chat = tk.Text(chat_frame, height = 47, width = 40)
 chat_frame.columnconfigure(0, weight=4)
@@ -167,4 +168,4 @@ def ChatSender(e):
 input_txt.bind('<Return>', ChatSender) ###PUT THIS IN NETWORK PYTHON FILE, CALL WITH MESSAGE SENDING
 
 
-my_window.mainloop()
+main_window.mainloop()
