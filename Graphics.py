@@ -1,6 +1,3 @@
-from turtle import color
-
-from setuptools import Command
 from Chess import *
 import tkinter as tk
 from tkinter import Frame, PhotoImage, Toplevel, ttk
@@ -168,4 +165,4 @@ def ChatSender(e):
 input_txt.bind('<Return>', ChatSender) ###PUT THIS IN NETWORK PYTHON FILE, CALL WITH MESSAGE SENDING
 
 
-main_window.mainloop()
+
