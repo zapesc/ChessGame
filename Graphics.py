@@ -70,6 +70,7 @@ def showMoves(pos):
             else:
                 nextMove = 'white'
             selectedPiece = None
+        
 
     for i in range(8):
         for j in range(8):
@@ -79,9 +80,13 @@ def showMoves(pos):
                 boardArr[i][j].configure(bg='#ffffff')
     
     if board.getPiece(pos) != None and board.getPiece(pos).color == nextMove:
+        original = selectedPiece
         selectedPiece = board.getPiece(pos)
-        for move in selectedPiece.simpleMoves:
-            boardArr[move[0]][move[1]].configure(bg = '#7f7f7f')
+        if original == selectedPiece:
+            selectedPiece=None
+        if selectedPiece!=None:
+            for move in selectedPiece.simpleMoves:
+                boardArr[move[0]][move[1]].configure(bg = '#7f7f7f')
         #boardArr[pos[0]][pos[1]].configure
     else:
         selectedPiece = None
