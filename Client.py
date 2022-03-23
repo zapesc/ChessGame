@@ -1,8 +1,5 @@
 from socket import *
-
-from matplotlib.pyplot import title
-from Graphics import *
-import tkinter as tk
+import Graphics
 
 from Chess import *
 import tkinter as tk
@@ -18,7 +15,7 @@ server_identifier = (default_ip, default_port)
 max_attempts = 10
 cookie = 0
 username = ''
-
+#chatName = ''
 
 client_sock = socket( AF_INET , SOCK_STREAM )
 
@@ -60,13 +57,9 @@ def setUName():
 
 
 #---------------------------------------------------------------------Graphics-------------------------------------------------#
-def get_ip():
-    return 
-def get_port():
-    return 
 
-main_window.update_idletasks()
-main_window.update()
+Graphics.main_window.update_idletasks()
+Graphics.main_window.update()
 
 connection = tk.Toplevel()
 connection.title('Server Selection')
@@ -127,6 +120,7 @@ def connectChoice(ip,port, uname):
                     username = uname
                 if setUName() == 'OK':
                     statusLabel.configure(text='Connected to Default Server as ' + username)
+                    Graphics.chatName = username
                     connection.protocol("WM_DELETE_WINDOW", enable_event)
                 else:
                     statusLabel.configure(text='That Username is taken')
@@ -144,6 +138,7 @@ def connectChoice(ip,port, uname):
                     username = uname
                 if setUName() == 'OK':
                     statusLabel.configure(text='Connected to Default Server as ' + username)
+                    Graphics.chatName = username
                     connection.protocol("WM_DELETE_WINDOW", enable_event)
                 else:
                     statusLabel.configure(text='That Username is taken')
@@ -151,17 +146,17 @@ def connectChoice(ip,port, uname):
             except:
                 statusLabel.configure(text='Unable to connect to chosen Server: ' + ip +':'+ port)
     except:
-        statusLabel.configure(text='Port must be a numer!') 
+        statusLabel.configure(text='Port must be a number!') 
 
 
 
 
 
-main_window.update_idletasks()
-main_window.update()
+Graphics.main_window.update_idletasks()
+Graphics.main_window.update()
 connection.update_idletasks()
 connection.update()
 connection.grab_set()
 
 
-main_window.mainloop()
+Graphics.main_window.mainloop()

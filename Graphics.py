@@ -1,12 +1,15 @@
 from Chess import *
 import tkinter as tk
 from tkinter import Frame, PhotoImage, Toplevel, ttk
+from tkinter.scrolledtext import ScrolledText
 import tkmacosx as tkm
 import os
 
 
 board = Game()
 board.update()
+chatName = ''
+chatQueue= ''
 
 
 # root window
@@ -144,7 +147,7 @@ setBoard()
 
 chat_frame = tk.LabelFrame(main_window, text="Chat Room")
 chat_frame.grid(row=0, column=1, sticky = 'nsew', padx=10, pady=10)
-chat = tk.Text(chat_frame, height = 47, width = 40)
+chat = ScrolledText(chat_frame, height = 47, width = 40)
 chat_frame.columnconfigure(0, weight=4)
 chat_frame.columnconfigure(1, weight=1)
 chat_frame.rowconfigure(0, weight=1)
@@ -158,16 +161,28 @@ input_txt.grid(row=1, column =0, sticky = 'nsew' , padx=10, pady=10)
 
 
 
-def MsgReceive(user,msg):
+def MsgReceive(msg):
     chat.configure(state='normal')
-    chat.insert(tk.END, '\n' + user + ': ' + msg)
+    chat.insert(tk.END, '\n' + msg)
     chat.configure(state='disabled')
+
 
 def ChatSender(e):
-    chat.insert(tk.END, '\n' + 'juan' + ':' + 'hi')
-    chat.configure(state='disabled')
+    global chatQueue
+    global chatName
+    text = input_txt.get("0.0","end-1c")
+    if text != '':
+        message = chatName + ': ' + text
+        chatQueue = message
+        chat.configure(state='normal')
+        chat.insert(tk.END, '\n' + message)
+        chat.configure(state='disabled')
+        chat.see("end")
+    input_txt.delete('1.0','end')
+    input_txt.mark_set("insert", "1.0")    
+    return "break"
 
-input_txt.bind('<Return>', ChatSender) ###PUT THIS IN NETWORK PYTHON FILE, CALL WITH MESSAGE SENDING
+input_txt.bind('<Return>', lambda e: ChatSender(e)) ###PUT THIS IN NETWORK PYTHON FILE, CALL WITH MESSAGE SENDING
 
 
 
