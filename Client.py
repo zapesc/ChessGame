@@ -108,55 +108,37 @@ def connectChoice(ip,port, uname):
     global server_identifier
     global default_port
     global default_ip
+    if ip == '' and port=='':
+            ip = default_ip
+            port = default_port
     try:
         if port != '':
             p = int(port)
-        if ip == '' and port=='':
-            if not connected_ip== default_ip and connected_port == default_port:
-                cookie=0
-            server_identifier = (default_ip, default_port)
-            try:
-                if cookie==0:
-                    cookie = comm()
-                if uname=='':
-                    username = "Guest " + str(cookie)
-                    uname = username
-                else:
-                    username = uname
-                if setUName() == 'OK':
+        if not (connected_ip== ip and connected_port == ip):
+            cookie=0
+        server_identifier = (default_ip, default_port)
+        try:
+            if cookie==0:
+                cookie = comm()
+                p=0
+            if uname=='':
+                username = "Guest " + str(cookie)
+                uname = username
+            else:
+                username = uname
+            if setUName() == 'OK':
+                statusLabel.configure(text='Connected to Default Server as ' + username)
+                Graphics.chatName = username
+                connection.protocol("WM_DELETE_WINDOW", enable_event)
+            else:
+                if username != uname:
+                    statusLabel.configure(text='That Username is taken')
+                else: 
                     statusLabel.configure(text='Connected to Default Server as ' + username)
-                    Graphics.chatName = username
-                    connection.protocol("WM_DELETE_WINDOW", enable_event)
-                else:
-                    if username != uname:
-                        statusLabel.configure(text='That Username is taken')
-                    else: 
-                        statusLabel.configure(text='Connected to Default Server as ' + username)
-            except:
-                statusLabel.configure(text='Unable to connect to chosen Server: ' + default_ip +':'+ default_port)
-        else:
-            if not connected_ip == ip and connected_port == int(port):
-                cookie=0
-            server_identifier = (ip, int(port))
-            try:
-                if cookie==0:
-                    cookie = comm()
-                if uname== '':
-                    username = "Guest " + str(cookie)
-                    uname = username
-                else:
-                    username = uname
-                if setUName() == 'OK':
-                    statusLabel.configure(text='Connected to Server as ' + username)
-                    Graphics.chatName = username
-                    connection.protocol("WM_DELETE_WINDOW", enable_event)
-                else:
-                    if username != uname:
-                        statusLabel.configure(text='That Username is taken')
-                    else:
-                        statusLabel.configure(text='Connected to Default Server as ' + username)     
-            except:
-                statusLabel.configure(text='Unable to connect to chosen Server: ' + ip +':'+ port)
+        except:
+            p=0
+            statusLabel.configure(text='Unable to connect to chosen Server: ' + ip +':'+ str(port))
+        
     except:
         statusLabel.configure(text='Port must be a number!') 
 
