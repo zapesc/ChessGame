@@ -15,7 +15,7 @@ server_socket.listen( 10 )
 
 class Queue():
     def __init__(self):
-        self.userMap = {}       #Maps user to cookie
+        self.userMap = {}       #Maps user to cookie    {username: cookie}
         self.waiting = {}       #dict of people waiting for game {cookie: desiredOpponentCookie}
         self.game = {}          #dict of ongoing games    {cookie : opCookie}
         self.waitingData = {}   #data waiting to be sent ot clients next time they connect {cookie: data}
@@ -28,8 +28,6 @@ class Queue():
 q = Queue()
 
 while True:
-
-
     # Accept a new connection.
     connection_socket , client_address = server_socket.accept()             #No need to worry ab this blocking code, as clients will be connecting very often
     connection_socket.settimeout(1)                                         #Ensure one client does not take too long and block others
@@ -44,12 +42,10 @@ while True:
         command =  msg[0:msg.index(':')]
         msg = msg[msg.index(':')+2:]
         data = msg
-    
-
 
         if user in q.userMap:
             if q.userMap[user] != cookie:
-                error = "ERR: Username does not match Cookie!"
+                error = "ERR: Username already exists!"
                 reply = error.encode()
                 connection_socket.send(reply)
             else:
@@ -142,8 +138,10 @@ while True:
                     reply = "End: Closing Connection"
                     reply = reply.encode()
                     connection_socket.send(reply)
-                    del q.game[q.game[cookie]]
-                    del q.game[cookie]
+                    if cookie in q.waiting:
+                        del q.waiting[cookie]
+                    if user in q.userMap:
+                        del q.userMap[user]
         else:
             if command == 'Cookie':
                 q.users+=1
@@ -156,16 +154,10 @@ while True:
                     reply = reply.encode()
                     connection_socket.send(reply)
                 else:  
-                    if user in q.userMap:
-                        if q.userMap[user] != cookie:
-                            error = "ERR: Username already exists!"
-                            reply = error.encode()
-                            connection_socket.send(reply)
-                    else:
-                        q.userMap[user] = cookie
-                        reply = "OK"
-                        reply = reply.encode()
-                        connection_socket.send(reply)
+                    q.userMap[user] = cookie
+                    reply = "OK"
+                    reply = reply.encode()
+                    connection_socket.send(reply)
 
         connection_socket.close()
         if command != 'GetStatus':

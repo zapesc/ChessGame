@@ -112,7 +112,12 @@ def close_all():
    connection.destroy()
    #Graphics.main_window.destroy()
 
+def close_connection():
+    comm(command='End')
+    Graphics.main_window.destroy()
+
 connection.protocol("WM_DELETE_WINDOW", disable_event)
+Graphics.main_window.protocol("WM_DELETE_WINDOW", close_connection)
 
 def connectChoice(ip,port, uname):
     global username
