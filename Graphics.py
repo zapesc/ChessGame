@@ -1,6 +1,6 @@
 from Chess import *
 import tkinter as tk
-from tkinter import Frame, PhotoImage, Toplevel, ttk
+from tkinter import SOLID, Frame, PhotoImage, Toplevel, ttk
 from tkinter.scrolledtext import ScrolledText
 import tkmacosx as tkm
 import os
@@ -22,7 +22,7 @@ main_window.title("Chess")
 main_window.columnconfigure(0, weight=4)
 main_window.columnconfigure(1, weight=1)
 main_window.rowconfigure(0, weight=4)
-main_window.rowconfigure(1, weight=8)
+main_window.rowconfigure(1, weight=1)
 
 wking = PhotoImage(file = r"ChessPieces/WK.png")
 bking = PhotoImage(file = r"ChessPieces/BK.png")
@@ -48,7 +48,7 @@ main_window.resizable(True, True)
 # main_frame.columnconfigure(1, weight=1)
 
 left_frame = Frame(main_window)
-left_frame.grid(row=0, column=0, sticky="nsew")
+left_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 for i in range(9):
     left_frame.columnconfigure(i, weight=1)
     left_frame.rowconfigure(i, weight=1)
@@ -111,16 +111,16 @@ for i in range(8):
             if os.name == 'posix':
                 boardArr[i][j] = tkm.Button(left_frame, bg='#E1FF99', fg='Black')
             else:
-                boardArr[i][j] = tk.Button(left_frame, bg='#E1FF99', fg='Black')
+                boardArr[i][j] = tk.Button(left_frame, bg='#E1FF99', fg='Black', relief=SOLID, borderwidth=1)
             boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:showMoves([i,j]))
-            boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
+            
         else:
             if os.name == 'posix':
                 boardArr[i][j] = tkm.Button(left_frame, bg='#ffffff', fg='Black')
             else: 
-                boardArr[i][j] = tk.Button(left_frame, bg='#ffffff', fg='Black')
+                boardArr[i][j] = tk.Button(left_frame, bg='#ffffff', fg='Black', relief=SOLID, borderwidth=1)
             boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:showMoves([i,j]))
-            boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
+        boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
 
 def setBoard():
     for i in range(8):
@@ -171,7 +171,7 @@ input_txt.grid(row=1, column =0, sticky = 'nsew' , padx=10, pady=10)
 statusFrame = tk.Frame(main_window)
 statusText = tk.Label(statusFrame, text = 'Waiting for Opponent')
 statusText.pack(anchor='center')
-statusFrame.grid(row=1, column=0, sticky = 'nsew', padx=10, pady=10)
+statusFrame.grid(row=1, column=0, sticky = 'nsew', padx=5, pady=5)
 
 
 def MsgReceive(msg):
