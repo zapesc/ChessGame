@@ -53,6 +53,37 @@ while True:
                 reply = error.encode()
                 connection_socket.send(reply)
             else:
+                if command == 'Start':
+                    if data == 'None':
+                        found = False
+                        for userCookie in q.waiting:
+                            if q.waiting[userCookie] == 'None':
+                                q.game[cookie] = userCookie
+                                q.game[userCookie] = cookie
+                                q.chatData[cookie] = ''
+                                q.chatData[userCookie] = ''
+                                q.waitingData[cookie] = "StartB" + userCookie
+                                q.waitingData[userCookie] = "StartW" + cookie
+                                found = True
+                                del q.waiting[userCookie] 
+                                break
+                        if not found:
+                            q.waiting[cookie] = 'None'
+                    else: 
+                        if data in q.userMap:                                                                   #username to cookie
+                            if q.userMap[data] in q.waiting and (q.waiting[q.userMap[data]] == user or q.waiting[q.userMap[data]] == 'None'):             #waiting stores cookies with status
+                                q.game[cookie] = q.userMap [data]                                               #q.userMap[data] is opponent cookie
+                                q.game[q.userMap[data]] = cookie
+                                q.chatData[cookie] = ''
+                                q.chatData[q.userMap[data]] = ''
+                                q.waitingData[cookie] = "StartB" + q.userMap[data]
+                                q.waitingData[q.userMap[data]] = "StartW" + cookie
+                                del q.waiting[q.userMap[data]]
+                            else:
+                                q.waiting[cookie] = data
+                        else:
+                            q.waiting[cookie] = data
+                    q.cookieMap[cookie] = user
                 if command == 'GetStatus':
                     reply = 'No'
                     if cookie in q.waitingData:
@@ -91,37 +122,6 @@ while True:
                         reply = q.cookieMap[data]
                     reply = reply.encode()
                     connection_socket.send(reply)
-                if command == 'Start':
-                    if data == 'None':
-                        found = False
-                        for userCookie in q.waiting:
-                            if q.waiting[userCookie] == 'None':
-                                q.game[cookie] = userCookie
-                                q.game[userCookie] = cookie
-                                q.chatData[cookie] = ''
-                                q.chatData[userCookie] = ''
-                                q.waitingData[cookie] = "StartB" + userCookie
-                                q.waitingData[userCookie] = "StartW" + cookie
-                                found = True
-                                del q.waiting[userCookie] 
-                                break
-                        if not found:
-                            q.waiting[cookie] = 'None'
-                    else: 
-                        if data in q.userMap:                                                                   #username to cookie
-                            if q.userMap[data] in q.waiting and q.waiting[q.userMap[data]] == user:             #waiting stores cookies with status
-                                q.game[cookie] = q.userMap [data]                                               #q.userMap[data] is opponent cookie
-                                q.game[q.userMap[data]] = cookie
-                                q.chatData[cookie] = ''
-                                q.chatData[q.userMap[data]] = ''
-                                q.waitingData[cookie] = "StartB" + q.userMap[data]
-                                q.waitingData[q.userMap[data]] = "StartW" + cookie
-                                del q.waiting[q.userMap[data]]
-                            else:
-                                q.waiting[cookie] = data
-                        else:
-                            q.waiting[cookie] = data
-                    q.cookieMap[cookie] = user
                 if command == 'Move':                                   #Move Format: P#a1  where c is color, P is piece, P is piece num, a-f is 0-7 x, 0-7 is y -- use # = 0 for singular pieces
                     reply = 'OK'
                     reply = reply.encode()

@@ -22,7 +22,7 @@ main_window.title("Chess")
 main_window.columnconfigure(0, weight=4)
 main_window.columnconfigure(1, weight=1)
 main_window.rowconfigure(0, weight=4)
-main_window.rowconfigure(1, weight=1)
+main_window.rowconfigure(1, weight=8)
 
 wking = PhotoImage(file = r"ChessPieces/WK.png")
 bking = PhotoImage(file = r"ChessPieces/BK.png")
@@ -156,7 +156,7 @@ def setBoard():
 setBoard()
 
 chat_frame = tk.LabelFrame(main_window, text="Chat Room")
-chat_frame.grid(row=0, column=1, sticky = 'nsew', padx=10, pady=10)
+chat_frame.grid(row=0, column=1, sticky = 'nsew', padx=10, pady=10, rowspan=2)
 chat = ScrolledText(chat_frame, height = 47, width = 40)
 chat_frame.columnconfigure(0, weight=4)
 chat_frame.columnconfigure(1, weight=1)
@@ -168,7 +168,10 @@ chat.configure(state='disabled')
 input_txt = tk.Text(chat_frame, height = 3, width = 40)
 input_txt.grid(row=1, column =0, sticky = 'nsew' , padx=10, pady=10)
 
-
+statusFrame = tk.Frame(main_window)
+statusText = tk.Label(statusFrame, text = 'Waiting for Opponent')
+statusText.pack(anchor='center')
+statusFrame.grid(row=1, column=0, sticky = 'nsew', padx=10, pady=10)
 
 
 def MsgReceive(msg):

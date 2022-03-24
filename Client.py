@@ -1,12 +1,6 @@
-from opcode import opname
 from socket import *
 import Graphics
-
-from Chess import *
 import tkinter as tk
-from tkinter import Frame, PhotoImage, Toplevel, ttk
-import tkmacosx as tkm
-import os
 import time
 
 #----------------------------------------------------------------------------Network--------------------------------------------#
@@ -127,19 +121,22 @@ def connectChoice(ip,port, uname):
     global server_identifier
     global default_port
     global default_ip
+    global connected_ip
+    global connected_port
     if ip == '' and port=='':
             ip = default_ip
             port = default_port
     try:
         if port != '':
             p = int(port)
-        if not (connected_ip== ip and connected_port == ip):
-            cookie=0
+        if not (connected_ip == ip and connected_port == port):
+            cookie = 0
+            connected_ip = ip
+            connected_port = port
         server_identifier = (default_ip, default_port)
         try:
             if cookie==0:
                 cookie = comm()
-                p=0
             if uname=='':
                 username = "Guest " + str(cookie)
                 uname = username
@@ -150,11 +147,7 @@ def connectChoice(ip,port, uname):
                 Graphics.chatName = username
                 opponentAsk()
             else:
-                if username != uname:
-                    statusLabel.configure(text='That Username is taken')
-                else: 
-                    statusLabel.configure(text='Connected to Default Server as ' + username)
-                    opponentAsk()
+                statusLabel.configure(text='That Username is taken')
         except:
             p=0
             statusLabel.configure(text='Unable to connect to chosen Server: ' + ip +':'+ str(port))
@@ -192,13 +185,13 @@ def gameLoop():
         if current_milli_time() >= lastRequest + pollingDelay:
             lastRequest = current_milli_time()
             reply = comm(command='GetStatus')
-            print(reply)
             if reply.find('Start') == 0:
                 try:
                     connection.destroy()
                 except:
                     pass
                 opName = comm(command='GetName', data=reply[reply.index("Start") + 6:])
+                Graphics.statusText.configure(text='Game against ' + opName)
                 if reply[reply.index("Start") + 5: reply.index("Start")+6]=='W':
                     Graphics.side = 'white'
                     Graphics.otherSide = 'black'
