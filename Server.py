@@ -18,12 +18,13 @@ class Queue():
         self.userMap = {}       #Maps user to cookie    {username: cookie}
         self.waiting = {}       #dict of people waiting for game {cookie: desiredOpponentCookie}
         self.game = {}          #dict of ongoing games    {cookie : opCookie}
-        self.waitingData = {}   #data waiting to be sent ot clients next time they connect {cookie: data}
+        self.waitingData = {}   #data waiting to be sent to clients next time they connect {cookie: data}
         self.waitingMoveData = {} #Move data waiting to be received by client
         self.waitingPromData = {} #promotion data waiting to be received by client
-        self.users = 0
         self.chatData = {}      #chat data waiting to be sent ot clients next time they connect {cookie: data}
         self.cookieMap = {}     #Maps cookie to user    {cookie: user}
+        self.endData = {}       #Maps cookie to end data {cookie: data}
+        self.users = 0
 
 q = Queue()
 
@@ -53,7 +54,7 @@ while True:
                     if data == 'None':
                         found = False
                         for userCookie in q.waiting:
-                            if q.waiting[userCookie] == 'None':
+                            if q.waiting[userCookie] == 'None' or q.waiting[userCookie] == user:
                                 q.game[cookie] = userCookie
                                 q.game[userCookie] = cookie
                                 q.chatData[cookie] = ''
@@ -135,13 +136,55 @@ while True:
                     connection_socket.send(reply)
                     q.chatData[q.game[cookie]] = chat           
                 if command == 'End':
-                    reply = "End: Closing Connection"
-                    reply = reply.encode()
-                    connection_socket.send(reply)
-                    if cookie in q.waiting:
-                        del q.waiting[cookie]
-                    if user in q.userMap:
-                        del q.userMap[user]
+                    if cookie in q.endData:
+                        reply = q.endData[cookie] 
+                        reply = reply.encode()
+                        print(reply)
+                        connection_socket.send(reply)
+                        if q.endData[cookie] != '':
+                            if cookie in q.game:                            #Remove Opponent from dictionaries
+                                opCookie = q.game[cookie]
+                                if opCookie in q.game:
+                                    del q.game[opCookie]
+                                if opCookie in q.waitingData:
+                                    del q.waitingData[opCookie]
+                                if opCookie in q.waitingMoveData:
+                                    del q.waitingMoveData[opCookie]
+                                if opCookie in q.waitingPromData:
+                                    del q.waitingPromData[opCookie]
+                                if opCookie in q.chatData:
+                                    del q.chatData[opCookie]
+                                if opCookie in q.cookieMap:
+                                    del q.cookieMap[opCookie]
+                                if opCookie in q.endData:
+                                    del q.endData[opCookie]
+                            if user in q.userMap:
+                                del q.userMap[user]
+                            if cookie in q.game:
+                                del q.game[cookie]
+                            if cookie in q.waitingData:
+                                del q.waitingData[cookie]
+                            if cookie in q.waitingMoveData:
+                                del q.waitingMoveData[cookie]
+                            if cookie in q.waitingPromData:
+                                del q.waitingPromData[cookie]
+                            if cookie in q.chatData:
+                                del q.chatData[cookie]
+                            if cookie in q.cookieMap:
+                                del q.cookieMap[cookie]
+                            if cookie in q.endData:
+                                del q.endData[cookie]
+                    else:
+                        if data!='None':
+                            reply = "End: Closing Connection"
+                            reply = reply.encode()
+                            connection_socket.send(reply)
+                            if cookie in q.game:
+                                q.endData[q.game[cookie]] = data
+                            if cookie in q.waiting:                         #Remove from Queue
+                                del q.waiting[cookie]
+                            if user in q.userMap:                           #Remove username association
+                                del q.userMap[user]
         else:
             if command == 'Cookie':
                 q.users+=1

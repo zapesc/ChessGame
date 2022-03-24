@@ -16,6 +16,8 @@ opName = ''
 opCookie = 0
 pollingDelay = 2000     #ms to wait before sending a new request to server
 lastRequest = 0
+endGame = False
+status = 0
 #chatName = ''
 
 def current_milli_time():
@@ -40,19 +42,21 @@ def connect(attempt):
 
 def comm(user='', cook = 'None', command = 'Cookie', data = 'None'):
     global server_identifier
-    if user == '':
-        user=username
-    if cook=='None':
-        cook = cookie
-    client_socket = socket( AF_INET , SOCK_STREAM )
-    client_socket.connect( server_identifier )
-    message = user + ": " + str(cook) + ': ' + command + ': ' + data
-    message = message.encode()
-    client_socket.send(message)
-    reply = client_socket.recv( 2048 )
-    reply = reply.decode()
-    client_socket.close()
-    return reply
+    if not endGame:
+        if user == '':
+            user=username
+        if cook=='None':
+            cook = cookie
+        client_socket = socket( AF_INET , SOCK_STREAM )
+        client_socket.connect( server_identifier )
+        message = user + ": " + str(cook) + ': ' + command + ': ' + data
+        message = message.encode()
+        client_socket.send(message)
+        reply = client_socket.recv( 2048 )
+        reply = reply.decode()
+        client_socket.close()
+        return reply
+    return ''
 
 def setUName():
     global cookie
@@ -113,7 +117,7 @@ def close_all():
    #Graphics.main_window.destroy()
 
 def close_connection():
-    comm(command='End')
+    comm(command='End', data='Quit')
     Graphics.main_window.destroy()
 
 connection.protocol("WM_DELETE_WINDOW", disable_event)
@@ -183,10 +187,75 @@ def opponentChoice(opponent):
     connection.protocol("WM_DELETE_WINDOW", close_all)
     gameLoop()
 
+def endScreen(winner):
+    global endGame
+    endGame = True
+    screen = tk.Toplevel()
+    screen.title('Game Results')
+    winnerLabel = tk.Label(screen, height=10, width=30)
+    winnerLabel.grid(row=0, column=0)
+    if winner != 'stalemate':
+        if winner == "Quit":
+            winnerLabel.configure(text= Graphics.otherSide.capitalize() + ' Resigned!')
+        else:
+            winnerLabel.configure(text = winner.capitalize() + ' Won!')
+    else:
+        winnerLabel.configure(text= 'A stalemate was reached!')
+
+def promote_ask(piece):
+    global status
+    if status == 0:
+        status=1
+        prom_window = tk.Toplevel()
+        description = tk.Label(prom_window, text='Choose a piece to promote to')
+        description.grid(row=0, column=0)
+        prom_window.columnconfigure(0, weight=1)
+        prom_window.rowconfigure(0, weight=1)
+        prom_window.rowconfigure(1, weight=1)
+        choices = tk.Frame(prom_window)
+        choices.grid(row=1, column=0)
+        choices.rowconfigure(0, weight=1)
+        choices.columnconfigure(0, weight=1)
+        choices.columnconfigure(1, weight=1)
+        choices.columnconfigure(2, weight=1)
+        choices.columnconfigure(3, weight=1)
+        if Graphics.side == 'white':
+            value1 = tk.Button(choices, height=100, width=100, image = Graphics.wbish, command=lambda window = prom_window, piece=piece, value='B': promote(piece, value, window))
+            value1.grid(row=0, column=0)
+            value2 = tk.Button(choices, height=100, width=100, image = Graphics.wnight, command=lambda window = prom_window, piece=piece, value='N': promote(piece, value, window))
+            value2.grid(row=0, column=1)
+            value3 = tk.Button(choices, height=100, width=100, image = Graphics.wrook, command=lambda window = prom_window, piece=piece, value='R': promote(piece, value, window))
+            value3.grid(row=0, column=2)
+            value4 = tk.Button(choices, height=100, width=100, image = Graphics.wqueen, command=lambda window = prom_window, piece=piece, value='Q': promote(piece, value, window))
+            value4.grid(row=0, column=3)
+        if Graphics.side == 'black':
+            value1 = tk.Button(choices, height=100, width=100, image = Graphics.bbish, command=lambda window = prom_window, piece=piece, value='B': promote(piece, value, window))
+            value1.grid(row=0, column=0)
+            value2 = tk.Button(choices, height=100, width=100, image = Graphics.bnight, command=lambda window = prom_window, piece=piece, value='N': promote(piece, value, window))
+            value2.grid(row=0, column=1)
+            value3 = tk.Button(choices, height=100, width=100, image = Graphics.brook, command=lambda window = prom_window, piece=piece, value='R': promote(piece, value, window))
+            value3.grid(row=0, column=2)
+            value4 = tk.Button(choices, height=100, width=100, image = Graphics.bqueen, command=lambda window = prom_window, piece=piece, value='Q': promote(piece, value, window))
+            value4.grid(row=0, column=3)
+
+def promote(piece, value, window):
+    global status
+    status = 0
+    if Graphics.side=='white':
+        Graphics.board.promote(Graphics.board.white[piece], value)
+    if Graphics.side=='black':
+        Graphics.board.promote(Graphics.board.black[piece], value)
+    comm(command='Move', data= Graphics.moveQueue)
+    Graphics.moveQueue = ''
+    comm(command='Prom', data=piece + value)
+    Graphics.setBoard()
+    window.destroy()
+    
+
 def gameLoop():
     global opName
     global lastRequest
-    while True:
+    while not endGame:
         if current_milli_time() >= lastRequest + pollingDelay:
             lastRequest = current_milli_time()
             reply = comm(command='GetStatus')
@@ -218,16 +287,43 @@ def gameLoop():
                     Graphics.board.move(Graphics.board.white[pieceName], moveTo)
                     Graphics.setBoard()
                     Graphics.nextMove = 'black'
-
-
+            reply = comm(command='GetProm')
+            if reply != '':
+                pieceName = reply[0:2]
+                newValue = reply[2]
+                if Graphics.side == 'white':
+                    Graphics.board.promote(Graphics.board.black[pieceName], newValue)
+                    Graphics.setBoard()
+                    Graphics.nextMove = 'white'
+                if Graphics.side == 'black':
+                    Graphics.board.promote(Graphics.board.white[pieceName], newValue)
+                    Graphics.setBoard()
+                    Graphics.nextMove = 'black'
+            reply = comm(command='End')
+            if reply != '':
+                endScreen(reply)
         if Graphics.chatQueue != '':
             reply = comm(command='Chat', data= str(Graphics.chatQueue))
             Graphics.chatQueue = ''
         if Graphics.moveQueue != '':
-            reply = comm(command='Move', data= Graphics.moveQueue)
-            print(Graphics.moveQueue)
-            Graphics.moveQueue = ''
+            piece = Graphics.moveQueue[0:2]
+            moveTo = [int(Graphics.moveQueue[2]), int(Graphics.moveQueue[3])]
+            if piece[0] == 'P':
+                if (Graphics.side == 'white' and moveTo[1] == 7) or (Graphics.side == 'black' and moveTo[1]==0):
+                    promote_ask(piece)
+                else:
+                    reply = comm(command='Move', data= Graphics.moveQueue)
+                    Graphics.moveQueue = ''
+            else:
+                reply = comm(command='Move', data= Graphics.moveQueue)
+                Graphics.moveQueue = ''
+        if Graphics.board.winner != '' and not endGame:
+            reply = comm(command='End', data=Graphics.board.winner)
+            endScreen(Graphics.board.winner)
+            Graphics.nextMove = 'None'
+            Graphics.board.winner = 'A'
 
+     
         Graphics.main_window.update_idletasks()
         Graphics.main_window.update()
         connection.update_idletasks()

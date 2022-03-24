@@ -28,7 +28,7 @@ class Game:
         self.white = {'R1':0, 'N1':0, 'B1':0, 'Q0':0, 'K0':0, 'B2':0, 'N2':0, 'R2':0,
              'P1':0, 'P2':0, 'P3':0, 'P4':0, 'P5':0, 'P6':0, 'P7':0, 'P8':0}
         
-        self.winner = "none"
+        self.winner = ''
 
         self.black['R1'] = Piece('black', 'R', [0,7])
         self.black['N1'] = Piece('black', 'N', [1,7])
@@ -276,7 +276,7 @@ class Game:
         return possible
 
     def capture(self, piece, move):
-        banish = [12,12]
+        banish = [20,20]
         if self.getPiece(move) != None:
             self.getPiece(move).position = banish
         elif piece.piece[0]=='P' :
