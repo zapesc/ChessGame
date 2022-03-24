@@ -19,6 +19,8 @@ class Queue():
         self.waiting = {}       #dict of people waiting for game {cookie: desiredOpponentCookie}
         self.game = {}          #dict of ongoing games    {cookie : opCookie}
         self.waitingData = {}   #data waiting to be sent ot clients next time they connect {cookie: data}
+        self.waitingMoveData = {} #Move data waiting to be received by client
+        self.waitingPromData = {} #promotion data waiting to be received by client
         self.users = 0
         self.chatData = {}      #chat data waiting to be sent ot clients next time they connect {cookie: data}
         self.cookieMap = {}     #Maps cookie to user    {cookie: user}
@@ -51,6 +53,44 @@ while True:
                 reply = error.encode()
                 connection_socket.send(reply)
             else:
+                if command == 'GetStatus':
+                    reply = 'No'
+                    if cookie in q.waitingData:
+                        if not q.waitingData[cookie] == '':
+                            reply = q.waitingData[cookie]
+                            q.waitingData[cookie] = ''
+                    reply = reply.encode()
+                    connection_socket.send(reply)
+                if command == 'GetMove':
+                    reply = ''
+                    if cookie in q.waitingMoveData:
+                        if not q.waitingMoveData[cookie] == '':
+                            reply = q.waitingMoveData[cookie]
+                            q.waitingMoveData[cookie] = ''
+                    reply = reply.encode()
+                    connection_socket.send(reply)
+                if command == 'GetProm':
+                    reply = ''
+                    if cookie in q.waitingPromData:
+                        if not q.waitingPromData[cookie] == '':
+                            reply = q.waitingPromData[cookie]
+                            q.waitingPromData[cookie] = ''
+                    reply = reply.encode()
+                    connection_socket.send(reply)
+                if command == 'GetChat':
+                    reply = ''
+                    if cookie in q.chatData:
+                        if not q.chatData[cookie] == '':
+                            reply = q.chatData[cookie]
+                            q.chatData[cookie] = ''
+                    reply = reply.encode()
+                    connection_socket.send(reply)
+                if command == 'GetName':
+                    reply = ''
+                    if data in q.cookieMap:
+                        reply = q.cookieMap[data]
+                    reply = reply.encode()
+                    connection_socket.send(reply)
                 if command == 'Start':
                     if data == 'None':
                         found = False
@@ -82,50 +122,22 @@ while True:
                         else:
                             q.waiting[cookie] = data
                     q.cookieMap[cookie] = user
-                if command == 'Get':
-                    reply = 'No'
-                    if cookie in q.waitingData:
-                        if not q.waitingData[cookie] == '':
-                            reply = q.waitingData[cookie]
-                            q.waitingData[cookie] = ''
-                    reply = reply.encode()
-                    connection_socket.send(reply)
-                if command == 'Move':                                   #Move Format: MovecP#a1  where c is color, P is piece, P is piece num, a-f is 0-7 x, 0-7 is y -- use # = 0 for singular pieces
+                if command == 'Move':                                   #Move Format: P#a1  where c is color, P is piece, P is piece num, a-f is 0-7 x, 0-7 is y -- use # = 0 for singular pieces
                     reply = 'OK'
                     reply = reply.encode()
                     connection_socket.send(reply)
-                    if q.waitingData[q.game[cookie]] != '':
-                        q.waitingData[q.game[cookie]] += ('/' + command + data)
-                    else:
-                        q.waitingData[q.game[cookie]] += (command + data)
-                if command == 'Prom':                                   #Promote Format: PromcP#a1
+                    q.waitingMoveData[q.game[cookie]] = data
+                if command == 'Prom':                                   #Promote Format: P#a1V    where V is value
                     reply = 'OK'
                     reply = reply.encode()
                     connection_socket.send(reply)
-                    if q.waitingData[q.game[cookie]] != '':
-                        q.waitingData[q.game[cookie]].append('/' + command + data)
-                    else:
-                        q.waitingData[q.game[cookie]].append(command + data)
+                    q.waitingPromData[q.game[cookie]] = data
                 if command == 'Chat':
                     chat = data
                     reply = 'OK'
                     reply = reply.encode()
                     connection_socket.send(reply)
-                    q.chatData[q.game[cookie]] = chat
-                if command == 'GetChat':
-                    reply = ''
-                    if cookie in q.chatData:
-                        if not q.chatData[cookie] == '':
-                            reply = q.chatData[cookie]
-                            q.chatData[cookie] = ''
-                    reply = reply.encode()
-                    connection_socket.send(reply)
-                if command == 'GetName':
-                    reply = ''
-                    if data in q.cookieMap:
-                        reply = q.cookieMap[data]
-                    reply = reply.encode()
-                    connection_socket.send(reply)
+                    q.chatData[q.game[cookie]] = chat           
                 if command == 'End':
                     reply = "End: Closing Connection"
                     reply = reply.encode()
@@ -156,7 +168,7 @@ while True:
                         connection_socket.send(reply)
 
         connection_socket.close()
-        if command != 'Get':
+        if command != 'GetStatus':
             print(user, cookie, command, data)
     except:
         connection_socket.close()

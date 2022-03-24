@@ -12,6 +12,7 @@ chatName = ''
 chatQueue= ''
 moveQueue = ''
 side = ''
+otherSide = ''
 
 
 # root window
@@ -68,6 +69,7 @@ def showMoves(pos):
     global selectedPiece
     global selectedPieceName
     global nextMove
+    global moveQueue
     if selectedPiece != None:
         if pos in selectedPiece.simpleMoves:
             board.move(selectedPiece, pos)
@@ -75,12 +77,13 @@ def showMoves(pos):
             for piece in board.ownSide(selectedPiece):
                 if board.ownSide(selectedPiece)[piece] == selectedPiece:
                     selectedPieceName = piece
-                moveQueue = selectedPiece.color[0] + selectedPieceName + str(pos[0]) + str(pos[1])
+                moveQueue = selectedPieceName + str(pos[0]) + str(pos[1])
             if nextMove == 'white':
                 nextMove = 'black'
             else:
                 nextMove = 'white'
             selectedPiece = None
+            selectedPieceName = ''
         
 
     for i in range(8):

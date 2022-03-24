@@ -22,10 +22,10 @@ class Piece():
 
 class Game:
     def __init__(self):
-        self.black = {'R1':0, 'N1':0, 'B1':0, 'Q':0, 'K':0, 'B2':0, 'N2':0, 'R2':0,
+        self.black = {'R1':0, 'N1':0, 'B1':0, 'Q0':0, 'K0':0, 'B2':0, 'N2':0, 'R2':0,
              'P1':0, 'P2':0, 'P3':0, 'P4':0, 'P5':0, 'P6':0, 'P7':0, 'P8':0}
 
-        self.white = {'R1':0, 'N1':0, 'B1':0, 'Q':0, 'K':0, 'B2':0, 'N2':0, 'R2':0,
+        self.white = {'R1':0, 'N1':0, 'B1':0, 'Q0':0, 'K0':0, 'B2':0, 'N2':0, 'R2':0,
              'P1':0, 'P2':0, 'P3':0, 'P4':0, 'P5':0, 'P6':0, 'P7':0, 'P8':0}
         
         self.winner = "none"
@@ -33,8 +33,8 @@ class Game:
         self.black['R1'] = Piece('black', 'R', [0,7])
         self.black['N1'] = Piece('black', 'N', [1,7])
         self.black['B1'] = Piece('black', 'B', [2,7])
-        self.black['Q']  = Piece('black', 'Q', [3,7])
-        self.black['K']  = Piece('black', 'K', [4,7])
+        self.black['Q0']  = Piece('black', 'Q', [3,7])
+        self.black['K0']  = Piece('black', 'K', [4,7])
         self.black['B2'] = Piece('black', 'B', [5,7])
         self.black['N2'] = Piece('black', 'N', [6,7])
         self.black['R2'] = Piece('black', 'R', [7,7])
@@ -44,8 +44,8 @@ class Game:
         self.white['R1'] = Piece('white', 'R', [0,0])
         self.white['N1'] = Piece('white', 'N', [1,0])
         self.white['B1'] = Piece('white', 'B', [2,0])
-        self.white['Q']  = Piece('white', 'Q', [3,0])
-        self.white['K']  = Piece('white', 'K', [4,0])
+        self.white['Q0']  = Piece('white', 'Q', [3,0])
+        self.white['K0']  = Piece('white', 'K', [4,0])
         self.white['B2'] = Piece('white', 'B', [5,0])
         self.white['N2'] = Piece('white', 'N', [6,0])
         self.white['R2'] = Piece('white', 'R', [7,0])
@@ -219,23 +219,23 @@ class Game:
         #Setup Castling
         for piece in self.white:
             if piece == 'R1':
-                if self.white[piece].movesDone == 0 and self.white['K'].movesDone == 0 and not self.isCheck(self.white['K']): 
-                    if [3,0] in self.white[piece].simpleMoves and not self.isCheck(self.white['K'], pos = [3,0]):
-                        self.white['K'].simpleMoves.append([2,0])
+                if self.white[piece].movesDone == 0 and self.white['K0'].movesDone == 0 and not self.isCheck(self.white['K0']): 
+                    if [3,0] in self.white[piece].simpleMoves and not self.isCheck(self.white['K0'], pos = [3,0]):
+                        self.white['K0'].simpleMoves.append([2,0])
             if piece == 'R2':
-                if self.white[piece].movesDone == 0 and self.white['K'].movesDone == 0 and not self.isCheck(self.white['K']): 
-                    if [5,0] in self.white[piece].simpleMoves and not self.isCheck(self.white['K'], pos = [5,0]):
-                        self.white['K'].simpleMoves.append([6,0])
+                if self.white[piece].movesDone == 0 and self.white['K0'].movesDone == 0 and not self.isCheck(self.white['K0']): 
+                    if [5,0] in self.white[piece].simpleMoves and not self.isCheck(self.white['K0'], pos = [5,0]):
+                        self.white['K0'].simpleMoves.append([6,0])
     
         for piece in self.black:
             if piece == 'R1':
-                if self.black[piece].movesDone == 0 and self.black['K'].movesDone == 0 and not self.isCheck(self.black['K']): 
-                    if [3,7] in self.black[piece].simpleMoves and not self.isCheck(self.black['K'], pos = [3,7]):
-                        self.black['K'].simpleMoves.append([2,7])
+                if self.black[piece].movesDone == 0 and self.black['K0'].movesDone == 0 and not self.isCheck(self.black['K0']): 
+                    if [3,7] in self.black[piece].simpleMoves and not self.isCheck(self.black['K0'], pos = [3,7]):
+                        self.black['K0'].simpleMoves.append([2,7])
             if piece == 'R2':
-                if self.black[piece].movesDone == 0 and self.black['K'].movesDone == 0 and not self.isCheck(self.black['K']): 
-                    if [5,7] in self.black[piece].simpleMoves and not self.isCheck(self.black['K'], pos = [5,7]):
-                        self.black['K'].simpleMoves.append([6,7])
+                if self.black[piece].movesDone == 0 and self.black['K0'].movesDone == 0 and not self.isCheck(self.black['K0']): 
+                    if [5,7] in self.black[piece].simpleMoves and not self.isCheck(self.black['K0'], pos = [5,7]):
+                        self.black['K0'].simpleMoves.append([6,7])
     
     def getPiece(self, position):          #Gets piece at a board position
         for piece in self.black.values():
@@ -256,7 +256,7 @@ class Game:
                     new = copy.deepcopy(original)
                     new.capture(new.white[piece],move)
                     new.possibleMoves()
-                    if not new.isCheck(new.white['K']):
+                    if not new.isCheck(new.white['K0']):
                         moves.append(move)
                 if moves!=[]:
                     possible = True
@@ -268,7 +268,7 @@ class Game:
                     new = copy.deepcopy(original)
                     new.capture(new.black[piece],move)
                     new.possibleMoves()
-                    if not new.isCheck(new.black['K']):
+                    if not new.isCheck(new.black['K0']):
                         moves.append(move)
                     if moves!=[]:
                         possible = True
@@ -276,7 +276,7 @@ class Game:
         return possible
 
     def capture(self, piece, move):
-        banish = [9,9]
+        banish = [12,12]
         if self.getPiece(move) != None:
             self.getPiece(move).position = banish
         elif piece.piece[0]=='P' :
@@ -285,7 +285,7 @@ class Game:
                     self.getPiece([move[0],move[1]-1]).position = banish
                 else:
                     self.getPiece([move[0],move[1]+1]).position = banish
-        elif piece.piece == 'K' and piece.movesDone == 0:
+        elif piece.piece[0] == 'K' and piece.movesDone == 0:
             if move == [2,0]:
                 self.ownSide(piece)['R1'].position = [3,0]
                 self.ownSide(piece)['R1'].movesDone +=1
@@ -316,8 +316,8 @@ class Game:
                     if [previousPos[0], previousPos[1] + 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] + 1] not in self.otherSide(piece)['P' + str(i)].simpleMoves:
                         self.otherSide(piece)['P' + str(i)].simpleMoves.append([previousPos[0], previousPos[1] + 1])
                         
-        if self.moveChecker(self.otherSide(piece)['K'].color) == False:                  #Checks for end
-            if self.isCheck(self.otherSide(piece)['K']):
+        if self.moveChecker(self.otherSide(piece)['K0'].color) == False:                  #Checks for end
+            if self.isCheck(self.otherSide(piece)['K0']):
                 self.winner = piece.color
             else:
                 self.winner = 'stalemate'

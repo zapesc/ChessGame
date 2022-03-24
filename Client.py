@@ -191,7 +191,7 @@ def gameLoop():
     while True:
         if current_milli_time() >= lastRequest + pollingDelay:
             lastRequest = current_milli_time()
-            reply = comm(command='Get')
+            reply = comm(command='GetStatus')
             print(reply)
             if reply.find('Start') == 0:
                 try:
@@ -199,12 +199,37 @@ def gameLoop():
                 except:
                     pass
                 opName = comm(command='GetName', data=reply[reply.index("Start") + 6:])
+                if reply[reply.index("Start") + 5: reply.index("Start")+6]=='W':
+                    Graphics.side = 'white'
+                    Graphics.otherSide = 'black'
+                else:
+                    Graphics.side = 'black'
+                    Graphics.otherSide = 'white'
             reply = comm(command='GetChat')
             if reply != '':
                 Graphics.MsgReceive(reply)
+            reply = comm(command='GetMove')
+            if reply != '':
+                pieceName = reply[0:2]
+                moveTo = [int(reply[2]), int(reply[3])]
+                if Graphics.side == 'white':
+                    Graphics.board.move(Graphics.board.black[pieceName], moveTo)
+                    Graphics.setBoard()
+                    Graphics.nextMove = 'white'
+                if Graphics.side == 'black':
+                    Graphics.board.move(Graphics.board.white[pieceName], moveTo)
+                    Graphics.setBoard()
+                    Graphics.nextMove = 'black'
+
+
         if Graphics.chatQueue != '':
-                reply = comm(command='Chat', data= str(Graphics.chatQueue))
-                Graphics.chatQueue = ''
+            reply = comm(command='Chat', data= str(Graphics.chatQueue))
+            Graphics.chatQueue = ''
+        if Graphics.moveQueue != '':
+            reply = comm(command='Move', data= Graphics.moveQueue)
+            print(Graphics.moveQueue)
+            Graphics.moveQueue = ''
+
         Graphics.main_window.update_idletasks()
         Graphics.main_window.update()
         connection.update_idletasks()
