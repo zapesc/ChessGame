@@ -170,7 +170,7 @@ input_txt.grid(row=1, column =0, sticky = 'nsew' , padx=10, pady=10)
 
 def MsgReceive(msg):
     chat.configure(state='normal')
-    chat.insert(tk.END, '\n' + msg)
+    chat.insert(tk.END, '\n' + msg )
     chat.configure(state='disabled')
 
 

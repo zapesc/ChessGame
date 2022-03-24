@@ -1,3 +1,4 @@
+from opcode import opname
 from socket import *
 import Graphics
 
@@ -7,7 +8,6 @@ from tkinter import Frame, PhotoImage, Toplevel, ttk
 import tkmacosx as tkm
 import os
 import time
-
 
 #----------------------------------------------------------------------------Network--------------------------------------------#
 default_ip = 'localhost'
@@ -19,7 +19,13 @@ max_attempts = 10
 cookie = 0
 username = ''
 opName = ''
+opCookie = 0
+pollingDelay = 2000     #ms to wait before sending a new request to server
+lastRequest = 0
 #chatName = ''
+
+def current_milli_time():
+    return round(time.time() * 1000)
 
 client_sock = socket( AF_INET , SOCK_STREAM )
 
@@ -180,15 +186,25 @@ def opponentChoice(opponent):
     gameLoop()
 
 def gameLoop():
+    global opName
+    global lastRequest
     while True:
-        #time.sleep(0.2)
-        reply = comm(command='Get')
-        print(reply)
-        if reply.find('Start') == 0:
-            try:
-                connection.destroy()
-            except:
-                pass
+        if current_milli_time() >= lastRequest + pollingDelay:
+            lastRequest = current_milli_time()
+            reply = comm(command='Get')
+            print(reply)
+            if reply.find('Start') == 0:
+                try:
+                    connection.destroy()
+                except:
+                    pass
+                opName = comm(command='GetName', data=reply[reply.index("Start") + 6:])
+            reply = comm(command='GetChat')
+            if reply != '':
+                Graphics.MsgReceive(reply)
+        if Graphics.chatQueue != '':
+                reply = comm(command='Chat', data= str(Graphics.chatQueue))
+                Graphics.chatQueue = ''
         Graphics.main_window.update_idletasks()
         Graphics.main_window.update()
         connection.update_idletasks()

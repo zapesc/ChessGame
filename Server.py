@@ -21,7 +21,7 @@ class Queue():
         self.waitingData = {}   #data waiting to be sent ot clients next time they connect {cookie: data}
         self.users = 0
         self.chatData = {}      #chat data waiting to be sent ot clients next time they connect {cookie: data}
-        self.cookieMap = {}     #Maps cookie to user
+        self.cookieMap = {}     #Maps cookie to user    {cookie: user}
 
 q = Queue()
 
@@ -81,6 +81,7 @@ while True:
                                 q.waiting[cookie] = data
                         else:
                             q.waiting[cookie] = data
+                    q.cookieMap[cookie] = user
                 if command == 'Get':
                     reply = 'No'
                     if cookie in q.waitingData:
@@ -106,17 +107,23 @@ while True:
                     else:
                         q.waitingData[q.game[cookie]].append(command + data)
                 if command == 'Chat':
-                    chat = 'Chat:' + user + ": " + data
+                    chat = data
                     reply = 'OK'
                     reply = reply.encode()
                     connection_socket.send(reply)
                     q.chatData[q.game[cookie]] = chat
                 if command == 'GetChat':
-                    reply = 'No'
+                    reply = ''
                     if cookie in q.chatData:
                         if not q.chatData[cookie] == '':
                             reply = q.chatData[cookie]
                             q.chatData[cookie] = ''
+                    reply = reply.encode()
+                    connection_socket.send(reply)
+                if command == 'GetName':
+                    reply = ''
+                    if data in q.cookieMap:
+                        reply = q.cookieMap[data]
                     reply = reply.encode()
                     connection_socket.send(reply)
                 if command == 'End':
@@ -129,7 +136,6 @@ while True:
             if command == 'Cookie':
                 q.users+=1
                 reply = str(q.users)
-                #reply = "OK: " + reply
                 reply = reply.encode()
                 connection_socket.send(reply)
             if command == 'User':
@@ -150,7 +156,8 @@ while True:
                         connection_socket.send(reply)
 
         connection_socket.close()
-        print(user, cookie, command, data)
+        if command != 'Get':
+            print(user, cookie, command, data)
     except:
         connection_socket.close()
 
