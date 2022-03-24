@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import Frame, PhotoImage, Toplevel, ttk
 import tkmacosx as tkm
 import os
+import time
 
 
 #----------------------------------------------------------------------------Network--------------------------------------------#
@@ -17,6 +18,7 @@ server_identifier = (default_ip, default_port)
 max_attempts = 10
 cookie = 0
 username = ''
+opName = ''
 #chatName = ''
 
 client_sock = socket( AF_INET , SOCK_STREAM )
@@ -36,11 +38,15 @@ def connect(attempt):
             print('Could not connect to server at', server_identifier, '\nRetrying...')
             connect(attempt+1)
 
-def comm(user='None', cookie = 'None', command = 'Cookie', data = 'None'):
+def comm(user='', cook = 'None', command = 'Cookie', data = 'None'):
     global server_identifier
+    if user == '':
+        user=username
+    if cook=='None':
+        cook = cookie
     client_socket = socket( AF_INET , SOCK_STREAM )
     client_socket.connect( server_identifier )
-    message = user + ": " + str(cookie) + ': ' + command + ': ' + data
+    message = user + ": " + str(cook) + ': ' + command + ': ' + data
     message = message.encode()
     client_socket.send(message)
     reply = client_socket.recv( 2048 )
@@ -51,7 +57,7 @@ def comm(user='None', cookie = 'None', command = 'Cookie', data = 'None'):
 def setUName():
     global cookie
     global username
-    reply = comm(user=username, cookie=cookie, command='User')
+    reply = comm(user=username, cook=cookie, command='User')
     return reply
 
 
@@ -65,21 +71,27 @@ Graphics.main_window.update()
 
 connection = tk.Toplevel()
 connection.title('Server Selection')
+
 inputFrame = tk.Frame(connection)
 inputFrame.grid(row=0, column=0, sticky="nsew")
+
 ipBox = tk.LabelFrame(inputFrame, text="Server Address")
 ipBox.grid(row=0, column = 0, padx=5, pady=5)
 server_ip = tk.Text(ipBox, height = 1, width = 40)
+
 portBox = tk.LabelFrame(inputFrame, text="Server Port")
 portBox.grid(row=0, column = 1, padx=5, pady=5)
 server_port = tk.Text(portBox, height = 1, width = 20)
+
 server_ip.grid(row=0, column=0, sticky='nsew')
 server_port.grid(row=0, column =0, sticky='nsew')
-submit = tk.Button(inputFrame, text='Submit', command= lambda: connectServer())
 
+submit = tk.Button(inputFrame, text='Submit', command= lambda: connectServer())
 submit.grid(row=0, column=2, padx=5, pady=5, sticky='snew')
+
 connection.rowconfigure(0,weight=1)
 connection.rowconfigure(1,weight=1)
+connection.rowconfigure(2,weight=1)
 
 usernameFrame = tk.LabelFrame(connection, text="Username")
 usernameFrame.grid(row=1, column=0, sticky='nsew', padx=5, pady=5)
@@ -96,8 +108,9 @@ def connectServer():
 def disable_event():
    pass
 
-def enable_event():
+def close_all():
    connection.destroy()
+   #Graphics.main_window.destroy()
 
 connection.protocol("WM_DELETE_WINDOW", disable_event)
 
@@ -129,12 +142,13 @@ def connectChoice(ip,port, uname):
             if setUName() == 'OK':
                 statusLabel.configure(text='Connected to Default Server as ' + username)
                 Graphics.chatName = username
-                connection.protocol("WM_DELETE_WINDOW", enable_event)
+                opponentAsk()
             else:
                 if username != uname:
                     statusLabel.configure(text='That Username is taken')
                 else: 
                     statusLabel.configure(text='Connected to Default Server as ' + username)
+                    opponentAsk()
         except:
             p=0
             statusLabel.configure(text='Unable to connect to chosen Server: ' + ip +':'+ str(port))
@@ -142,8 +156,43 @@ def connectChoice(ip,port, uname):
     except:
         statusLabel.configure(text='Port must be a number!') 
 
+def opponentAsk():
+    inputFrame.destroy()
+    # inputFrame.update_idletasks()
+    # inputFrame.update()
+    connection.title('Opponent Selection')
+    usernameFrame.configure(text = 'Opponent: ')
+    usernameEntry.delete('1.0','end')
+    submit = tk.Button(usernameFrame, text='Submit', command= lambda: opponentHelper())
+    submit.grid(row=0, column=1)
+    statusLabel.configure(text='Connected to Default Server as ' + username + ". Enter username of opponent to face, or leave blank for random.")
 
+def opponentHelper():
+    opponentChoice(usernameEntry.get("1.0","end-1c"))
 
+def opponentChoice(opponent):
+    if opponent=='':
+        opponent = 'None'
+    comm(command='Start', data=opponent)
+    statusLabel.configure(text="Waiting for Opponent", height=10, width=30)
+    usernameFrame.destroy()
+    connection.protocol("WM_DELETE_WINDOW", close_all)
+    gameLoop()
+
+def gameLoop():
+    while True:
+        #time.sleep(0.2)
+        reply = comm(command='Get')
+        print(reply)
+        if reply.find('Start') == 0:
+            try:
+                connection.destroy()
+            except:
+                pass
+        Graphics.main_window.update_idletasks()
+        Graphics.main_window.update()
+        connection.update_idletasks()
+        connection.update()
 
 
 Graphics.main_window.update_idletasks()

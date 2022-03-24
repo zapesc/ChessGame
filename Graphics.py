@@ -10,6 +10,8 @@ board = Game()
 board.update()
 chatName = ''
 chatQueue= ''
+moveQueue = ''
+side = ''
 
 
 # root window
@@ -60,14 +62,20 @@ for i in range(8):
     boardArr.append(zeroes)
 
 selectedPiece = None
+selectedPieceName = ''
 nextMove = 'white'
 def showMoves(pos):
     global selectedPiece
+    global selectedPieceName
     global nextMove
     if selectedPiece != None:
         if pos in selectedPiece.simpleMoves:
             board.move(selectedPiece, pos)
             setBoard()
+            for piece in board.ownSide(selectedPiece):
+                if board.ownSide(selectedPiece)[piece] == selectedPiece:
+                    selectedPieceName = piece
+                moveQueue = selectedPiece.color[0] + selectedPieceName + str(pos[0]) + str(pos[1])
             if nextMove == 'white':
                 nextMove = 'black'
             else:
@@ -82,7 +90,7 @@ def showMoves(pos):
             else:
                 boardArr[i][j].configure(bg='#ffffff')
     
-    if board.getPiece(pos) != None and board.getPiece(pos).color == nextMove:
+    if board.getPiece(pos) != None and board.getPiece(pos).color == nextMove and board.getPiece(pos).color == side:
         original = selectedPiece
         selectedPiece = board.getPiece(pos)
         if original == selectedPiece:
@@ -92,8 +100,7 @@ def showMoves(pos):
                 boardArr[move[0]][move[1]].configure(bg = '#7f7f7f')
         #boardArr[pos[0]][pos[1]].configure
     else:
-        selectedPiece = None
-        
+        selectedPiece = None       
 
 for i in range(8):
     for j in range(8):
