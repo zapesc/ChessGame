@@ -322,9 +322,9 @@ class Game:
             else:
                 self.winner = 'stalemate'
 
-    def promote(self, piece, newPiece = 'Q'):
-        piece.piece = newPiece
-
+    def promote(self, piece, value):
+        piece.piece = value
+                
     def update(self):                      #Updates the board object
         self.possibleMoves()
         #self.moveChecker()
