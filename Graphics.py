@@ -1,3 +1,4 @@
+from setuptools import Command
 from Chess import *
 import tkinter as tk
 from tkinter import SOLID, Frame, PhotoImage, Toplevel, ttk
@@ -121,8 +122,19 @@ for i in range(8):
                 boardArr[i][j] = tk.Button(left_frame, bg='#ffffff', fg='Black', relief=SOLID, borderwidth=1)
             boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:showMoves([i,j]))
         boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
-
+once = 0
 def setBoard():
+    global once
+    if side == 'black' and once==0:
+        once+=1
+        for i in range(8):
+            for j in range(4):
+                tempButton = (boardArr[i][7-j])
+                boardArr[i][7-j] = (boardArr[i][j])
+                boardArr[i][j] = tempButton
+                boardArr[i][7-j].configure(command= lambda i=i, j=7-j:showMoves([i,j]))
+                boardArr[i][j].configure(command= lambda i=i, j=7-j:showMoves([i,j]))
+
     for i in range(8):
         for j in range(8):
             if board.getPiece([i,j]) != None:
