@@ -4,7 +4,7 @@ import tkinter as tk
 import time
 
 #----------------------------------------------------------------------------Network--------------------------------------------#
-default_ip = 'localhost'
+default_ip = '192.168.137.1'
 default_port = 4000
 connected_ip = ''
 connected_port = 0
@@ -133,16 +133,15 @@ def connectChoice(ip,port, uname):
     global connected_ip
     global connected_port
     if ip == '' and port=='':
-            ip = default_ip
-            port = default_port
+        ip = default_ip
+        port = default_port
     try:
-        if port != '':
-            p = int(port)
+        port =  int(port)
         if not (connected_ip == ip and connected_port == port):
             cookie = 0
             connected_ip = ip
             connected_port = port
-        server_identifier = (default_ip, default_port)
+        server_identifier = (ip, port)
         try:
             if cookie==0:
                 cookie = comm()

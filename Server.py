@@ -2,7 +2,7 @@ from multiprocessing import connection
 from socket import *
 
 # Initialise important variables.
-address = 'localhost'
+address = '0.0.0.0'
 port_number = 4000
 identifier = ( address , port_number )
 
