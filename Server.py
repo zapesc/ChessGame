@@ -1,4 +1,3 @@
-from multiprocessing import connection
 from socket import *
 
 # Initialise important variables.
