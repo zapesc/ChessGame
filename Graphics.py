@@ -90,9 +90,13 @@ def showMoves(pos):
     for i in range(8):
         for j in range(8):
             if not (i + j)%2 == 0:
-                boardArr[i][j].configure(bg='#E1FF99')
+                
+                    boardArr[i][j].configure(bg='#ffffff')
+                
             else:
-                boardArr[i][j].configure(bg='#ffffff')
+                
+                    boardArr[i][j].configure(bg='#E1FF99')
+                
     
     if board.getPiece(pos) != None and board.getPiece(pos).color == nextMove and board.getPiece(pos).color == side:
         original = selectedPiece
@@ -110,18 +114,19 @@ for i in range(8):
     for j in range(8):
         if not (i + j)%2 == 0:
             if os.name == 'posix':
-                boardArr[i][j] = tkm.Button(left_frame, bg='#E1FF99', fg='Black')
+                boardArr[i][j] = tkm.Button(left_frame, bg='#ffffff', fg='Black')
             else:
-                boardArr[i][j] = tk.Button(left_frame, bg='#E1FF99', fg='Black', relief=SOLID, borderwidth=1)
+                boardArr[i][j] = tk.Button(left_frame, bg='#ffffff', fg='Black', relief=SOLID, borderwidth=1)
             boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:showMoves([i,j]))
             
         else:
             if os.name == 'posix':
-                boardArr[i][j] = tkm.Button(left_frame, bg='#ffffff', fg='Black')
+                boardArr[i][j] = tkm.Button(left_frame, bg='#E1FF99', fg='Black')
             else: 
-                boardArr[i][j] = tk.Button(left_frame, bg='#ffffff', fg='Black', relief=SOLID, borderwidth=1)
+                boardArr[i][j] = tk.Button(left_frame, bg='#E1FF99', fg='Black', relief=SOLID, borderwidth=1)
             boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:showMoves([i,j]))
         boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
+
 once = 0
 def setBoard():
     global once

@@ -272,6 +272,7 @@ def gameLoop():
                     Graphics.side = 'black'
                     Graphics.otherSide = 'white'
                 Graphics.setBoard()
+                Graphics.showMoves([4,4])
             reply = comm(command='GetChat')
             if reply != '':
                 Graphics.MsgReceive(reply)
