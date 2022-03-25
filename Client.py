@@ -307,11 +307,15 @@ def gameLoop():
             reply = comm(command='Chat', data= str(Graphics.chatQueue))
             Graphics.chatQueue = ''
         if Graphics.moveQueue != '':
-            piece = Graphics.moveQueue[0:2]
+            pieceName = Graphics.moveQueue[0:2]
+            if Graphics.side == 'white':
+                pieceValue = Graphics.board.white[pieceName].piece
+            else:
+                pieceValue = Graphics.board.black[pieceName].piece
             moveTo = [int(Graphics.moveQueue[2]), int(Graphics.moveQueue[3])]
-            if piece[0] == 'P':
+            if pieceName[0] == 'P' and pieceValue == 'P':
                 if (Graphics.side == 'white' and moveTo[1] == 7) or (Graphics.side == 'black' and moveTo[1]==0):
-                    promote_ask(piece)
+                    promote_ask(pieceName)
                 else:
                     reply = comm(command='Move', data= Graphics.moveQueue)
                     Graphics.moveQueue = ''
