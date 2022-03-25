@@ -110,7 +110,7 @@ class Game:
             if piece.color == 'white':
                 if self.getPiece([x, y+1]) == None:
                     moves.append([x, y +1])
-                if piece.movesDone == 0 and self.getPiece([x, y+2]) == None:
+                if piece.movesDone == 0 and self.getPiece([x, y+2]) == None and self.getPiece([x, y+1]) == None:
                     moves.append([x, y+2])
                 for take in self.black.values():
                     if take.position == [x+1, y+1] or take.position == [x-1, y+1]:
@@ -119,7 +119,7 @@ class Game:
             if piece.color == 'black':
                 if self.getPiece([x, y-1]) == None:
                     moves.append([x, y-1])
-                if piece.movesDone == 0 and self.getPiece([x, y-2]) == None:
+                if piece.movesDone == 0 and self.getPiece([x, y-2]) == None and self.getPiece([x, y-1]) == None:
                     moves.append([x, y-2])
                 for take in self.white.values():
                     if take.position == [x+1, y-1] or take.position == [x-1, y-1]:
