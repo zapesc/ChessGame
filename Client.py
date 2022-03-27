@@ -74,7 +74,9 @@ Graphics.main_window.update_idletasks()
 Graphics.main_window.update()
 
 connection = tk.Toplevel()
+connection.iconbitmap("ChessPieces/AppIcon.ico")
 connection.title('Server Selection')
+connection.resizable(0,0)
 
 inputFrame = tk.Frame(connection)
 inputFrame.grid(row=0, column=0, sticky="nsew")
@@ -82,25 +84,24 @@ inputFrame.grid(row=0, column=0, sticky="nsew")
 ipBox = tk.LabelFrame(inputFrame, text="Server Address")
 ipBox.grid(row=0, column = 0, padx=5, pady=5)
 server_ip = tk.Text(ipBox, height = 1, width = 40)
+server_ip.grid(row=0, column=0, sticky='nsew')
 
 portBox = tk.LabelFrame(inputFrame, text="Server Port")
 portBox.grid(row=0, column = 1, padx=5, pady=5)
 server_port = tk.Text(portBox, height = 1, width = 20)
-
-server_ip.grid(row=0, column=0, sticky='nsew')
 server_port.grid(row=0, column =0, sticky='nsew')
 
 submit = tk.Button(inputFrame, text='Submit', command= lambda: connectServer())
 submit.grid(row=0, column=2, padx=5, pady=5, sticky='snew')
 
-connection.rowconfigure(0,weight=1)
-connection.rowconfigure(1,weight=1)
-connection.rowconfigure(2,weight=1)
+# connection.rowconfigure(0,weight=1)
+# connection.rowconfigure(1,weight=1)
+# connection.rowconfigure(2,weight=1)
 
 usernameFrame = tk.LabelFrame(connection, text="Username")
 usernameFrame.grid(row=1, column=0, sticky='nsew', padx=5, pady=5)
-usernameEntry = tk.Text(usernameFrame, height = 1, width = 76)
-usernameFrame.rowconfigure(0, weight=1)
+usernameEntry = tk.Text(usernameFrame, height = 1, width=70)
+# usernameFrame.rowconfigure(0, weight=1)
 usernameEntry.grid(row=0, column=0, sticky='nsew')
 
 statusLabel = tk.Label(connection, text="Choose Server to connect to. Leave blank for default.")
@@ -206,6 +207,8 @@ def promote_ask(piece):
     if status == 0:
         status=1
         prom_window = tk.Toplevel()
+        prom_window.title('Promote Pawn')
+        prom_window.iconbitmap("ChessPieces/AppIcon.ico")
         description = tk.Label(prom_window, text='Choose a piece to promote to')
         description.grid(row=0, column=0)
         prom_window.columnconfigure(0, weight=1)
@@ -328,18 +331,13 @@ def gameLoop():
             Graphics.nextMove = 'None'
             Graphics.board.winner = 'A'
 
-     
         Graphics.main_window.update_idletasks()
         Graphics.main_window.update()
         connection.update_idletasks()
         connection.update()
 
-
-Graphics.main_window.update_idletasks()
-Graphics.main_window.update()
 connection.update_idletasks()
 connection.update()
 connection.grab_set()
-
 
 Graphics.main_window.mainloop()

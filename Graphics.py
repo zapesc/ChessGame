@@ -7,7 +7,6 @@ import os
 
 
 board = Game()
-board.update()
 chatName = ''
 chatQueue= ''
 moveQueue = ''
@@ -17,12 +16,12 @@ otherSide = ''
 
 # root window
 main_window = tk.Tk()
+main_window.iconbitmap("ChessPieces/AppIcon.ico")
 main_window.geometry('1200x850')
 main_window.title("Chess")
-main_window.columnconfigure(0, weight=4)
+main_window.columnconfigure(0, weight=1)
 main_window.columnconfigure(1, weight=1)
-main_window.rowconfigure(0, weight=4)
-main_window.rowconfigure(1, weight=1)
+main_window.rowconfigure(0, weight=1)
 
 wking = PhotoImage(file = r"ChessPieces/WK.png")
 bking = PhotoImage(file = r"ChessPieces/BK.png")
@@ -42,25 +41,13 @@ circle = PhotoImage(file = r"ChessPieces/Move.png")
 
 main_window.resizable(True, True)
 
-# main_frame = Frame(main_window)
-# main_frame.grid(row=1, column=1, sticky="nsew")
-# main_frame.columnconfigure(0, weight=4)
-# main_frame.columnconfigure(1, weight=1)
-
-left_frame = Frame(main_window)
-left_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+board_frame = Frame(main_window)
+board_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 for i in range(9):
-    left_frame.columnconfigure(i, weight=1)
-    left_frame.rowconfigure(i, weight=1)
+    board_frame.columnconfigure(i, weight=1)
+    board_frame.rowconfigure(i, weight=1)
 
-
-boardArr = []
-
-for i in range(8):
-    zeroes = []
-    for j in range(8):
-        zeroes.append(0)
-    boardArr.append(zeroes)
+boardArr = [[0 for x in range(8)] for x in range(8)]
 
 selectedPiece = None
 selectedPieceName = ''
@@ -89,11 +76,8 @@ def showMoves(pos):
     for i in range(8):
         for j in range(8):
             if not (i + j)%2 == 0:
-                
                     boardArr[i][j].configure(bg='#ffffff')
-                
             else:
-                
                     boardArr[i][j].configure(bg='#E1FF99')
                 
     
@@ -113,16 +97,16 @@ for i in range(8):
     for j in range(8):
         if not (i + j)%2 == 0:
             if os.name == 'posix':
-                boardArr[i][j] = tkm.Button(left_frame, bg='#ffffff', fg='Black')
+                boardArr[i][j] = tkm.Button(board_frame, bg='#ffffff', fg='Black')
             else:
-                boardArr[i][j] = tk.Button(left_frame, bg='#ffffff', fg='Black', relief=SOLID, borderwidth=1)
+                boardArr[i][j] = tk.Button(board_frame, bg='#ffffff', fg='Black', relief=SOLID, borderwidth=1)
             boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:showMoves([i,j]))
             
         else:
             if os.name == 'posix':
-                boardArr[i][j] = tkm.Button(left_frame, bg='#E1FF99', fg='Black')
+                boardArr[i][j] = tkm.Button(board_frame, bg='#E1FF99', fg='Black')
             else: 
-                boardArr[i][j] = tk.Button(left_frame, bg='#E1FF99', fg='Black', relief=SOLID, borderwidth=1)
+                boardArr[i][j] = tk.Button(board_frame, bg='#E1FF99', fg='Black', relief=SOLID, borderwidth=1)
             boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:showMoves([i,j]))
         boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
 
@@ -131,7 +115,6 @@ def setBoard():
     global once
     if side == 'black' and once==0:
         once+=1
-        once+=1
         for i in range(8):
             for j in range(4):
                 tempButton = (boardArr[i][7-j])
@@ -139,7 +122,6 @@ def setBoard():
                 boardArr[i][j] = tempButton
                 boardArr[i][7-j].configure(command= lambda i=i, j=7-j:showMoves([i,j]))
                 boardArr[i][j].configure(command= lambda i=i, j=j:showMoves([i,j]))
-
 
     for i in range(8):
         for j in range(8):
@@ -213,7 +195,7 @@ def ChatSender(e):
     input_txt.mark_set("insert", "1.0")    
     return "break"
 
-input_txt.bind('<Return>', lambda e: ChatSender(e)) ###PUT THIS IN NETWORK PYTHON FILE, CALL WITH MESSAGE SENDING
+input_txt.bind('<Return>', lambda e: ChatSender(e))
 
 
 

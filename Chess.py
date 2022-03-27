@@ -51,6 +51,8 @@ class Game:
         self.white['R2'] = Piece('white', 'R', [7,0])
         for i in range(1,9):
             self.white['P' + str(i)] = Piece('white', 'P', [i-1, 1])
+        
+        self.possibleMoves()
         # self.white['N2'].position = [8,8]
         # self.white['B2'].position = [8,8]
         # self.white['P7'].position = [8,8]
@@ -326,7 +328,7 @@ class Game:
         piece.piece = value
                 
     def update(self):                      #Updates the board object
-        self.possibleMoves()
+        pass
         #self.moveChecker()
 
 
