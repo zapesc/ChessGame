@@ -192,6 +192,7 @@ def endScreen(winner):
     endGame = True
     screen = tk.Toplevel()
     screen.title('Game Results')
+    screen.iconbitmap("ChessPieces/AppIcon.ico")
     winnerLabel = tk.Label(screen, height=10, width=30)
     winnerLabel.grid(row=0, column=0)
     if winner != 'stalemate':
@@ -207,6 +208,7 @@ def promote_ask(piece):
     if status == 0:
         status=1
         prom_window = tk.Toplevel()
+        prom_window.resizable(0,0)
         prom_window.title('Promote Pawn')
         prom_window.iconbitmap("ChessPieces/AppIcon.ico")
         description = tk.Label(prom_window, text='Choose a piece to promote to')
@@ -216,11 +218,6 @@ def promote_ask(piece):
         prom_window.rowconfigure(1, weight=1)
         choices = tk.Frame(prom_window)
         choices.grid(row=1, column=0)
-        choices.rowconfigure(0, weight=1)
-        choices.columnconfigure(0, weight=1)
-        choices.columnconfigure(1, weight=1)
-        choices.columnconfigure(2, weight=1)
-        choices.columnconfigure(3, weight=1)
         if Graphics.side == 'white':
             value1 = tk.Button(choices, height=100, width=100, image = Graphics.wbish, command=lambda window = prom_window, piece=piece, value='B': promote(piece, value, window))
             value1.grid(row=0, column=0)
