@@ -6,7 +6,7 @@ def current_milli_time():
 #----------------------------------------------------------------------------Network--------------------------------------------#
 class Client:
     def __init__(self):
-        self.default_ip = '192.168.137.1'
+        self.default_ip = '192.168.137.31'
         self.default_port = 4000
         self.connected_ip = ''
         self.connected_port = 0
@@ -19,26 +19,40 @@ class Client:
         self.pollingDelay = 2000     #ms to wait before sending a new request to server
         self.lastRequest = 0
         self.endGame = False
-        self.client_sock = socket( AF_INET , SOCK_STREAM )
+        self.client_socket = socket( AF_INET , SOCK_STREAM )
         self.observer = None
+        self.connected = False
+        self.ready = False
 
-    def setIdentifier(self, server_address = 'localhost', server_port = 4000):
+
+    def setIdentifier(self, server_address = '', server_port = 0):
+        if server_address == '':
+            server_address = self.default_ip
+        if server_port == 0:
+            server_port = self.default_port
         self.server_identifier = (server_address, server_port)
 
     def comm(self, user='', cook = 'None', command = 'Cookie', data = 'None'):
-        if not self.endGame:
+        if not self.connected:
+            self.client_socket.settimeout(1)
+            try:
+                self.client_socket.connect(self.server_identifier)
+                self.connected = True
+            except:
+                self.client_socket = socket( AF_INET , SOCK_STREAM )
+                self.connected = False
+                raise TimeoutError
+        if self.connected and not self.endGame:
             if user == '':
                 user=self.username
             if cook=='None':
                 cook = self.cookie
-            client_socket = socket( AF_INET , SOCK_STREAM )
-            client_socket.connect( self.server_identifier )
             message = user + ": " + str(cook) + ': ' + command + ': ' + data
             message = message.encode()
-            client_socket.send(message)
-            reply = client_socket.recv( 2048 )
+            self.client_socket.send(message)
+            reply = self.client_socket.recv( 2048 )
             reply = reply.decode()
-            client_socket.close()
+            #self.client_socket.close()
             return reply
         return ''
 
@@ -60,7 +74,7 @@ class Client:
 
     def gameLoop(self):
         while not self.endGame:
-            if current_milli_time() >= self.lastRequest + self.pollingDelay:
+            if self.ready and current_milli_time() >= self.lastRequest + self.pollingDelay:
                 self.lastRequest = current_milli_time()
                 reply = self.comm(command='GetStatus')
                 if reply.find('Start') == 0:
@@ -79,10 +93,10 @@ class Client:
                     self.observer.setBoard()
                     self.observer.showMoves([4,4])
                 reply = self.comm(command='GetChat')
-                if reply != '':
+                if reply != 'None':
                     self.observer.MsgReceive(reply)
                 reply = self.comm(command='GetMove')
-                if reply != '':
+                if reply != 'None':
                     pieceName = reply[0:2]
                     moveTo = [int(reply[2]), int(reply[3])]
                     if self.observer.side == 'white':
@@ -94,7 +108,7 @@ class Client:
                         self.observer.setBoard()
                         self.observer.nextMove = 'black'
                 reply = self.comm(command='GetProm')
-                if reply != '':
+                if reply != 'None':
                     pieceName = reply[0:2]
                     newValue = reply[2]
                     if self.observer.side == 'white':
@@ -106,7 +120,7 @@ class Client:
                         self.observer.setBoard()
                         self.observer.nextMove = 'black'
                 reply = self.comm(command='End')
-                if reply != '':
+                if reply != 'None':
                     self.observer.endScreen(reply)
             self.observer.update()
 

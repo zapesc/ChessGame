@@ -260,9 +260,9 @@ class GraphicsUpdater:
 
     def promote(self, piece, value, window):
         if self.side=='white':
-            self.graphics.board.promote(self.graphics.board.white[piece], value)
+            self.board.promote(self.graphics.board.white[piece], value)
         if self.side=='black':
-            self.graphics.board.promote(self.graphics.board.black[piece], value)
+            self.board.promote(self.graphics.board.black[piece], value)
         self.client.sendProm(piece + value)
         self.setBoard()
         window.destroy()
@@ -320,6 +320,7 @@ class GraphicsUpdater:
         self.graphics.statusLabel.configure(text="Waiting for Opponent", height=10, width=30)
         self.graphics.usernameFrame.destroy()
         self.graphics.connection.protocol("WM_DELETE_WINDOW", self.close_all)
+        self.client.ready = True
         #self.client.gameLoop()
         
     def update(self):
