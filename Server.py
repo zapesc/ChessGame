@@ -16,6 +16,8 @@ class Queue():
         self.cookieMap = {}  # Maps cookie to user    {cookie: user}
         self.endData = {}  # Maps cookie to end data {cookie: data}
         self.users = 0
+        self.cookieConnection = {} #maps cookie to connection
+        self.cookieReceiver = {}   #maps cookie to socket designated for recieving data
 
 class Server:
     def __init__(self):
@@ -43,7 +45,7 @@ class Server:
         socket.send(reply)
 
     def handle_client(self, connection_socket):
-        print('handled')
+        print('Handling Client!')
         running = True
         while running:
             try:
@@ -59,6 +61,12 @@ class Server:
                 msg = msg[msg.index(':')+2:]
                 data = msg
 
+
+
+                if command == "SetRecv":
+                    self.q.cookieReceiver[cookie] = connection_socket
+                    print('set receiver at cookie', cookie)
+
                 if user in self.q.userMap:
                     if self.q.userMap[user] != cookie:
                         error = "ERR: Username already exists!"
@@ -66,6 +74,7 @@ class Server:
                         connection_socket.send(reply)
                     else:
                         if command == 'Start':
+                            self.reply(connection_socket, 'None')
                             if data == 'None':
                                 found = False
                                 for userCookie in self.q.waiting:
@@ -74,13 +83,17 @@ class Server:
                                         self.q.game[userCookie] = cookie
                                         self.q.chatData[cookie] = ''
                                         self.q.chatData[userCookie] = ''
-                                        self.q.waitingData[cookie] = "StartB" + userCookie
-                                        self.q.waitingData[userCookie] = "StartW" + cookie
+                                        try:
+                                            self.reply(self.q.cookieReceiver[cookie], str("StartB" + userCookie))
+                                            self.reply(self.q.cookieReceiver[userCookie],(str("StartW" + cookie)))
+                                        except Exception as e:
+                                            print(e)
                                         found = True
                                         del self.q.waiting[userCookie]
                                         break
                                 if not found:
                                     self.q.waiting[cookie] = 'None'
+                                    
                             else:
                                 if data in self.q.userMap:  # username to cookie
                                     # waiting stores cookies with status
@@ -137,16 +150,19 @@ class Server:
                         if command == 'Move':  # Move Format: P#a1  where c is color, P is piece, P is piece num, a-f is 0-7 x, 0-7 is y -- use # = 0 for singular pieces
                             reply = 'OK'
                             self.reply(connection_socket, reply)
-                            self.q.waitingMoveData[self.q.game[cookie]] = data
+                            self.reply(self.q.cookieReceiver[self.q.game[cookie]],(str("Move" + data)))
+                            #self.q.waitingMoveData[self.q.game[cookie]] = data
                         if command == 'Prom':  # Promote Format: P#a1V    where V is value
                             reply = 'OK'
                             self.reply(connection_socket, reply)
-                            self.q.waitingPromData[self.q.game[cookie]] = data
+                            self.reply(self.q.cookieReceiver[self.q.game[cookie]],(str("Prom" + data)))
+                            #self.q.waitingPromData[self.q.game[cookie]] = data
                         if command == 'Chat':
                             chat = data
                             reply = 'OK'
                             self.reply(connection_socket, reply)
-                            self.q.chatData[self.q.game[cookie]] = chat
+                            self.reply(self.q.cookieReceiver[self.q.game[cookie]],(str("Chat" + data)))
+                            #self.q.chatData[self.q.game[cookie]] = chat
                         if command == 'End':
                             if cookie in self.q.endData:
                                 reply = self.q.endData[cookie]
@@ -191,7 +207,7 @@ class Server:
                                     reply = "End: Closing Connection"
                                     self.reply(connection_socket, reply)
                                     if cookie in self.q.game:
-                                        self.q.endData[self.q.game[cookie]] = data
+                                        self.reply(self.q.cookieReceiver[self.q.game[cookie]],(str("End" + data)))
                                     if cookie in self.q.waiting:  # Remove from Queue
                                         del self.q.waiting[cookie]
                                     if user in self.q.userMap:  # Remove username association
@@ -208,6 +224,7 @@ class Server:
                         self.q.users += 1
                         reply = str(self.q.users)
                         self.reply(connection_socket, reply)
+                        self.q.cookieConnection[self.q.users] = connection_socket
                     if command == 'User':
                         if user == 'None':
                             reply = "ERR: Invalid Name!"

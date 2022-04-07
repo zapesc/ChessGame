@@ -98,7 +98,6 @@ class GraphicsUpdater:
         self.client = client
         self.graphics = Graphics()
         self.selectedPiece = None
-        self.selectedPieceName = ''
         self.side = ''
         self.otherSide = ''
         self.nextMove = 'white'
@@ -134,20 +133,21 @@ class GraphicsUpdater:
                 self.setBoard()
                 for piece in self.board.ownSide(self.selectedPiece):
                     if self.board.ownSide(self.selectedPiece)[piece] == self.selectedPiece:
-                        self.selectedPieceName = piece
+                        selectedPieceName = piece
                 if self.side == 'white':
-                    pieceValue = self.board.white[self.selectedPieceName].piece
+                    pieceValue = self.board.white[selectedPieceName].piece
                 else:
-                    pieceValue = self.board.black[self.selectedPieceName].piece
-                if (self.side == 'white' and pos[1] == 7) or (self.side == 'black' and pos[1]==0) and pieceValue=='P':
-                    self.promote_ask(self.selectedPiece)
-                self.client.sendMove( self.selectedPieceName + str(pos[0]) + str(pos[1]) )
+                    pieceValue = self.board.black[selectedPieceName].piece
+                if ((self.side == 'white' and pos[1] == 7) or (self.side == 'black' and pos[1]==0)) and pieceValue=='P':
+                    self.promote_ask(selectedPieceName, pos)
+                else:
+                    self.client.sendMove(selectedPieceName + str(pos[0]) + str(pos[1]) )
                 if self.nextMove == 'white':
                     self.nextMove = 'black'
                 else:
                     self.nextMove = 'white'
                 self.selectedPiece = None
-                self.selectedPieceName = ''
+                selectedPieceName = ''
             
         for i in range(8):
             for j in range(8):
@@ -227,8 +227,9 @@ class GraphicsUpdater:
         self.graphics.chat.insert(tk.END, '\n' + msg )
         self.graphics.chat.configure(state='disabled')
 
-    def promote_ask(self, piece):
+    def promote_ask(self, piece, pos):
         prom_window = tk.Toplevel()
+        prom_window.protocol("WM_DELETE_WINDOW", self.disable_event)
         prom_window.resizable(0,0)
         prom_window.title('Promote Pawn')
         prom_window.iconbitmap("ChessPieces/AppIcon.ico")
@@ -240,30 +241,31 @@ class GraphicsUpdater:
         choices = tk.Frame(prom_window)
         choices.grid(row=1, column=0)
         if self.side == 'white':
-            value1 = tk.Button(choices, height=100, width=100, image = self.graphics.wbish, command=lambda window = prom_window, piece=piece, value='B': self.promote(piece, value, window))
+            value1 = tk.Button(choices, height=100, width=100, image = self.graphics.wbish, command=lambda window = prom_window, piece=piece, value='B', pos = pos: self.promote(piece, value, window, pos))
             value1.grid(row=0, column=0)
-            value2 = tk.Button(choices, height=100, width=100, image = self.graphics.wnight, command=lambda window = prom_window, piece=piece, value='N': self.promote(piece, value, window))
+            value2 = tk.Button(choices, height=100, width=100, image = self.graphics.wnight, command=lambda window = prom_window, piece=piece, value='N', pos = pos: self.promote(piece, value, window, pos))
             value2.grid(row=0, column=1)
-            value3 = tk.Button(choices, height=100, width=100, image = self.graphics.wrook, command=lambda window = prom_window, piece=piece, value='R': self.promote(piece, value, window))
+            value3 = tk.Button(choices, height=100, width=100, image = self.graphics.wrook, command=lambda window = prom_window, piece=piece, value='R', pos = pos: self.promote(piece, value, window, pos))
             value3.grid(row=0, column=2)
-            value4 = tk.Button(choices, height=100, width=100, image = self.graphics.wqueen, command=lambda window = prom_window, piece=piece, value='Q': self.promote(piece, value, window))
+            value4 = tk.Button(choices, height=100, width=100, image = self.graphics.wqueen, command=lambda window = prom_window, piece=piece, value='Q', pos = pos: self.promote(piece, value, window, pos))
             value4.grid(row=0, column=3)
         if self.side == 'black':
-            value1 = tk.Button(choices, height=100, width=100, image = self.graphics.bbish, command=lambda window = prom_window, piece=piece, value='B': self.promote(piece, value, window))
+            value1 = tk.Button(choices, height=100, width=100, image = self.graphics.bbish, command=lambda window = prom_window, piece=piece, value='B', pos = pos: self.promote(piece, value, window, pos))
             value1.grid(row=0, column=0)
-            value2 = tk.Button(choices, height=100, width=100, image = self.graphics.bnight, command=lambda window = prom_window, piece=piece, value='N': self.promote(piece, value, window))
+            value2 = tk.Button(choices, height=100, width=100, image = self.graphics.bnight, command=lambda window = prom_window, piece=piece, value='N', pos = pos: self.promote(piece, value, window, pos))
             value2.grid(row=0, column=1)
-            value3 = tk.Button(choices, height=100, width=100, image = self.graphics.brook, command=lambda window = prom_window, piece=piece, value='R': self.promote(piece, value, window))
+            value3 = tk.Button(choices, height=100, width=100, image = self.graphics.brook, command=lambda window = prom_window, piece=piece, value='R', pos = pos: self.promote(piece, value, window, pos))
             value3.grid(row=0, column=2)
-            value4 = tk.Button(choices, height=100, width=100, image = self.graphics.bqueen, command=lambda window = prom_window, piece=piece, value='Q': self.promote(piece, value, window))
+            value4 = tk.Button(choices, height=100, width=100, image = self.graphics.bqueen, command=lambda window = prom_window, piece=piece, value='Q', pos = pos: self.promote(piece, value, window, pos))
             value4.grid(row=0, column=3)
 
-    def promote(self, piece, value, window):
+    def promote(self, piece, value, window, pos):
         if self.side=='white':
-            self.board.promote(self.graphics.board.white[piece], value)
+            self.board.promote(self.board.white[piece], value)
         if self.side=='black':
-            self.board.promote(self.graphics.board.black[piece], value)
+            self.board.promote(self.board.black[piece], value)
         self.client.sendProm(piece + value)
+        self.client.sendMove( piece + str(pos[0]) + str(pos[1]) )
         self.setBoard()
         window.destroy()
 
@@ -324,14 +326,18 @@ class GraphicsUpdater:
         #self.client.gameLoop()
         
     def update(self):
-        self.graphics.main_window.update()
-        self.graphics.main_window.update_idletasks()
-        self.graphics.connection.update_idletasks()
-        self.graphics.connection.update()
-        if self.board.winner != '' and not self.client.endGame:
-            self.client.comm(command='End', data=self.board.winner)
-            self.nextMove = 'None'
-            self.endScreen(self.board.winner)
+        try:
+            self.graphics.main_window.update()
+            self.graphics.main_window.update_idletasks()
+            self.graphics.connection.update_idletasks()
+            self.graphics.connection.update()
+        
+            if self.board.winner != '' and not self.client.endGame:
+                self.client.comm(command='End', data=self.board.winner)
+                self.nextMove = 'None'
+                self.endScreen(self.board.winner)
+        except:
+            pass
             
 
     def disable_event(self):
@@ -343,6 +349,11 @@ class GraphicsUpdater:
     def close_connection(self):
         self.client.comm(command='End', data='Quit')
         self.graphics.main_window.destroy()
+        self.client.endGame = True
+        self.client.running = False
+        for thread in self.client.threadQueue:
+            thread.join()
+        
     
     def endScreen(self, winner):
         self.client.endGame = True
