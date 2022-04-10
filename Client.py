@@ -87,7 +87,6 @@ class Client:
     def loop(self):
         while self.running:
             while self.ready and not self.endGame:
-                print("1")
                 reply = self.recv_socket.recv(2048)
                 reply = reply.decode()
                 print(reply)
@@ -160,7 +159,7 @@ class Client:
             self.queue['End'] = ''
 
     def gameLoop(self):
-        thread = threading.Thread(target= self.loop)
+        thread = threading.Thread(target= self.loop, daemon=True)
         thread.start()
         while not self.endGame: 
             self.checkQueue()

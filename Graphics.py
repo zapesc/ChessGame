@@ -264,8 +264,8 @@ class GraphicsUpdater:
             self.board.promote(self.board.white[piece], value)
         if self.side=='black':
             self.board.promote(self.board.black[piece], value)
-        self.client.sendProm(piece + value)
         self.client.sendMove( piece + str(pos[0]) + str(pos[1]) )
+        self.client.sendProm(piece + value)
         self.setBoard()
         window.destroy()
 
@@ -358,6 +358,7 @@ class GraphicsUpdater:
     def endScreen(self, winner):
         self.client.endGame = True
         screen = tk.Toplevel()
+        screen.grab_set()
         screen.title('Game Results')
         screen.iconbitmap("ChessPieces/AppIcon.ico")
         winnerLabel = tk.Label(screen, height=10, width=30)
@@ -369,7 +370,7 @@ class GraphicsUpdater:
                 winnerLabel.configure(text = winner.capitalize() + ' Won!')
         else:
             winnerLabel.configure(text= 'A stalemate was reached!')
-        while True:
+        while True and self.client.running:
             self.update()
 
 
