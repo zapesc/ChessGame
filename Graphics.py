@@ -106,7 +106,7 @@ class GraphicsUpdater:
         self.graphics.connection.grab_set()
         self.graphics.input_txt.bind('<Return>', lambda e: self.ChatSender(e))
         self.graphics.submit.configure(command= lambda: self.connectServer())
-        self.graphics.connection.protocol("WM_DELETE_WINDOW", self.disable_event)
+        self.graphics.connection.protocol("WM_DELETE_WINDOW", self.close_both)
         self.graphics.main_window.protocol("WM_DELETE_WINDOW", self.close_connection)
 
         for i in range(8):
@@ -340,8 +340,12 @@ class GraphicsUpdater:
             pass
             
 
-    def disable_event(self):
-        pass
+    def close_both(self):
+        self.graphics.connection.destroy()
+        self.graphics.main_window.destroy()
+        self.client.endGame = True
+        self.client.running = False
+
 
     def close_all(self):
         self.graphics.connection.destroy()
@@ -351,8 +355,6 @@ class GraphicsUpdater:
         self.graphics.main_window.destroy()
         self.client.endGame = True
         self.client.running = False
-        for thread in self.client.threadQueue:
-            thread.join()
         
     
     def endScreen(self, winner):

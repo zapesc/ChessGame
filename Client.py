@@ -22,7 +22,6 @@ class Client:
         self.connected = False
         self.ready = False
         self.setReceiver = False
-        self.threadQueue = []
         self.running = True
 
         self.queue = {'Start': '', 'Chat': '', 'Move': '', 'Prom': '', 'End': ''}
@@ -159,7 +158,6 @@ class Client:
         while not self.endGame: 
             self.checkQueue()
             self.observer.update()
-        self.threadQueue.append(thread)
 
             
 
