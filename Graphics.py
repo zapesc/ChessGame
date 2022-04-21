@@ -101,8 +101,8 @@ class GraphicsUpdater:
         self.side = ''
         self.otherSide = ''
         self.nextMove = 'white'
-        self.chatName = ''
         self.once = 0
+
         self.graphics.connection.grab_set()
         self.graphics.input_txt.bind('<Return>', lambda e: self.ChatSender(e))
         self.graphics.submit.configure(command= lambda: self.connectServer())
@@ -120,7 +120,7 @@ class GraphicsUpdater:
                     
                 else:
                     if os.name == 'posix':
-                        boardArr[i][j] = tkm.Button(self.graphics.board_frame, bg='#E1FF99', fg='Black')
+                        self.graphics.boardArr[i][j] = tkm.Button(self.graphics.board_frame, bg='#E1FF99', fg='Black')
                     else: 
                         self.graphics.boardArr[i][j] = tk.Button(self.graphics.board_frame, bg='#E1FF99', fg='Black', relief=SOLID, borderwidth=1)
                     self.graphics.boardArr[i][j].configure(font = ("Helvetica", 20, "normal"), height=2, width=5, command = lambda i=i, j=j:self.showMoves([i,j]))
@@ -182,29 +182,30 @@ class GraphicsUpdater:
         for i in range(8):
             for j in range(8):
                 if self.board.getPiece([i,j]) != None:
-                    if self.board.getPiece([i,j]).piece[0] == 'K' and self.board.getPiece([i,j]).color == 'white':
+                    p = self.board.getPiece([i,j])
+                    if p.piece[0] == 'K' and p.color == 'white':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.wking, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'K' and self.board.getPiece([i,j]).color == 'black':
+                    elif p.piece[0] == 'K' and p.color == 'black':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.bking, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'R' and self.board.getPiece([i,j]).color == 'white':
+                    elif p.piece[0] == 'R' and p.color == 'white':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.wrook, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'R' and self.board.getPiece([i,j]).color == 'black':
+                    elif p.piece[0] == 'R' and p.color == 'black':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.brook, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'N' and self.board.getPiece([i,j]).color == 'white':
+                    elif p.piece[0] == 'N' and p.color == 'white':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.wnight, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'N' and self.board.getPiece([i,j]).color == 'black':
+                    elif p.piece[0] == 'N' and p.color == 'black':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.bnight, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'B' and self.board.getPiece([i,j]).color == 'white':
+                    elif p.piece[0] == 'B' and p.color == 'white':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.wbish, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'B' and self.board.getPiece([i,j]).color == 'black':
+                    elif p.piece[0] == 'B' and p.color == 'black':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.bbish, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'Q' and self.board.getPiece([i,j]).color == 'white':
+                    elif p.piece[0] == 'Q' and p.color == 'white':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.wqueen, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'Q' and self.board.getPiece([i,j]).color == 'black':
+                    elif p.piece[0] == 'Q' and p.color == 'black':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.bqueen, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'P' and self.board.getPiece([i,j]).color == 'white':
+                    elif p.piece[0] == 'P' and p.color == 'white':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.wpawn, height=100, width=100)
-                    if self.board.getPiece([i,j]).piece[0] == 'P' and self.board.getPiece([i,j]).color == 'black':
+                    elif p.piece[0] == 'P' and p.color == 'black':
                         self.graphics.boardArr[i][j].configure(image = self.graphics.bpawn, height=100, width=100)
                 else:
                     self.graphics.boardArr[i][j].configure(image = self.graphics.none, height=100, width=100)
@@ -212,7 +213,7 @@ class GraphicsUpdater:
     def ChatSender(self, e):
         text = self.graphics.input_txt.get("0.0","end-1c")
         if text != '':
-            message = self.chatName + ': ' + text
+            message = self.client.username + ': ' + text
             self.client.sendChat(message)
             self.graphics.chat.configure(state='normal')
             self.graphics.chat.insert(tk.END, '\n' + message)
@@ -293,7 +294,6 @@ class GraphicsUpdater:
                     self.client.username = uname
                 if self.client.setUName() == 'OK':
                     self.graphics.statusLabel.configure(text='Connected to Default Server as ' + self.client.username)
-                    self.chatName = self.client.username
                     self.opponentAsk()
                 else:
                     self.graphics.statusLabel.configure(text='That Username is taken')

@@ -13,13 +13,8 @@ class Client:
         self.connected_ip = '' #
         self.connected_port = 0 #
         self.server_identifier = (self.default_ip, self.default_port)
-        self.max_attempts = 10 #
         self.cookie = 0
         self.username = ''
-        self.opName = '' #
-        self.opCookie = 0 #
-        self.pollingDelay = 2000     #ms to wait before sending a new request to server
-        self.lastRequest = 0
         self.endGame = False
         self.client_socket = socket( AF_INET , SOCK_STREAM )
         self.recv_socket = socket(AF_INET, SOCK_STREAM)
