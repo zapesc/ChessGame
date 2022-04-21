@@ -8,7 +8,7 @@ def current_milli_time():
 #----------------------------------------------------------------------------Network--------------------------------------------#
 class Client:
     def __init__(self):
-        self.default_ip = '192.168.137.1'
+        self.default_ip = 'localhost'
         self.default_port = 4000
         self.connected_ip = '' #
         self.connected_port = 0 #
