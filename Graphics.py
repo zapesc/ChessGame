@@ -278,8 +278,8 @@ class GraphicsUpdater:
             self.board.promote(self.board.white[piece], value)
         if self.side=='black':
             self.board.promote(self.board.black[piece], value)
-        self.client.sendMove( piece + str(pos[0]) + str(pos[1]) )
         self.client.sendProm(piece + value)
+        self.client.sendMove( piece + str(pos[0]) + str(pos[1]) )
         self.setBoard()
         window.destroy()
 
@@ -367,6 +367,10 @@ class GraphicsUpdater:
         self.graphics.main_window.destroy()
         self.client.endGame = True
         self.client.running = False
+    
+    def disable_event(self):
+        """Disables window closing event"""
+        pass
 
     def close_all(self):
         """Closes waiting window"""

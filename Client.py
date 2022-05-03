@@ -97,10 +97,10 @@ class Client:
                     self.queue['Start'] = reply[reply.index("Start") + 5:]
                 elif reply.find('Chat') == 0:
                     self.queue['Chat'] = reply[reply.index("Chat") + 4:]
-                elif reply.find('Move') == 0:
-                    self.queue['Move'] = reply[reply.index("Move") + 4:]
                 elif reply.find('Prom') == 0:
                     self.queue['Prom'] = reply[reply.index("Prom") + 4:]
+                elif reply.find('Move') == 0:
+                    self.queue['Move'] = reply[reply.index("Move") + 4:]
                 elif reply.find('End') == 0:
                     self.queue['End'] = reply[reply.index("End") + 3:]
 

@@ -162,4 +162,4 @@ class Server:
             except:
                 pass
 
-s = Server()
+Server()
