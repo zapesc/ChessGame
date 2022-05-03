@@ -1,17 +1,17 @@
 from socket import *
 import tkinter as tk
-import time
 import threading
 
-def current_milli_time():
-    return round(time.time() * 1000)
+
 #----------------------------------------------------------------------------Network--------------------------------------------#
 class Client:
+    """Handles communicating with server and passing messages to the GUI"""
     def __init__(self):
+        """Initializes variables and defaults"""
         self.default_ip = 'localhost'
         self.default_port = 4000
-        self.connected_ip = '' #
-        self.connected_port = 0 #
+        self.connected_ip = ''
+        self.connected_port = 0
         self.server_identifier = (self.default_ip, self.default_port)
         self.cookie = 0
         self.username = ''
@@ -26,30 +26,28 @@ class Client:
 
         self.queue = {'Start': '', 'Chat': '', 'Move': '', 'Prom': '', 'End': ''}
 
-
-    def setIdentifier(self, server_address = '', server_port = 0):
-        if server_address == '':
-            server_address = self.default_ip
-        if server_port == 0:
-            server_port = self.default_port
-        self.server_identifier = (server_address, server_port)
-
     def comm(self, user='', cook = 'None', command = 'Cookie', data = 'None'):
+        """Sends messages to server in expected format
+        :param user: str
+        :param cook: int
+        :param command: str
+        :param data: str
+        :return reply: str"""
         if not self.connected:
             self.client_socket.settimeout(1)
             try:
                 self.client_socket.connect(self.server_identifier)
                 self.recv_socket.connect(self.server_identifier)
                 self.connected = True
-            except:
+            except: #Reset connections
                 self.client_socket = socket( AF_INET , SOCK_STREAM )
                 self.recv_socket = socket( AF_INET , SOCK_STREAM )
                 self.connected = False
-                raise TimeoutError
+                raise TimeoutError #Handled by window prompting the user
         if self.cookie != 0 and not self.setReceiver:
-            self.recv_socket.send((self.username + ": " + str(self.cookie) + ': ' + 'SetRecv' + ': ' + "None").encode())
+            self.recv_socket.send((self.username + ": " + str(self.cookie) + ': ' + 'SetRecv' + ': ' + "None").encode())    #Links Receiving socket to Cookie
             self.setReceiver = True
-        if self.connected and not self.endGame:
+        if self.connected and not self.endGame:     #Send commands
             if user == '':
                 user=self.username
             if cook=='None':
@@ -63,22 +61,33 @@ class Client:
         return ''
 
     def setUName(self):
+        """Set username, returns server reply
+        :return reply: str"""
         reply = self.comm(user=self.username, cook=self.cookie, command='User')
         return reply
     
     def set_observer(self, observer):
+        """Set observer to update when a message is received
+        :param observer: GraphicsUpdater"""
         self.observer = observer
 
     def sendChat(self, msg):
+        """Sends chat message to server
+        :param msg: str"""
         self.comm(command='Chat', data= str(msg))
 
     def sendMove(self, move):
+        """Sends move message to server
+        :param move: str"""
         self.comm(command='Move', data= move)
     
     def sendProm(self, prom):
+        """Sends promotion message to server
+        :param prom: str"""
         self.comm(command='Prom', data= prom)
 
     def loop(self):
+        """Listens to incoming messages until the game ends, adds them to corresponding queue"""
         while self.running:
             while self.ready and not self.endGame:
                 reply = self.recv_socket.recv(2048)
@@ -96,6 +105,7 @@ class Client:
                     self.queue['End'] = reply[reply.index("End") + 3:]
 
     def checkQueue(self):
+        """Checks Queues and calls observer methods correspondingly"""
         if self.queue['Start'] != '':
             info = self.queue['Start']      #info contains opponent cookie and side user is playing on
             try:
@@ -111,7 +121,6 @@ class Client:
                 self.observer.side = 'black'
                 self.observer.otherSide = 'white'
             self.observer.setBoard()
-            self.observer.showMoves([4,4])
             self.queue['Start'] = ''
 
         if self.queue['Chat'] != '':
@@ -153,15 +162,9 @@ class Client:
             self.queue['End'] = ''
 
     def gameLoop(self):
-        thread = threading.Thread(target= self.loop, daemon=True)
+        """Loop which runs both GUI and Server communication"""
+        thread = threading.Thread(target= self.loop, daemon=True) #Thread for consistent listening for messages without blocking
         thread.start()
         while not self.endGame: 
             self.checkQueue()
             self.observer.update()
-
-            
-
-
-
-
-#---------------------------------------------------------------------Graphics-------------------------------------------------#

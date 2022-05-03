@@ -1,13 +1,14 @@
 from Chess import *
 import tkinter as tk
-from tkinter import SOLID, Frame, PhotoImage, Toplevel, ttk
+from tkinter import SOLID, Frame, PhotoImage
 from tkinter.scrolledtext import ScrolledText
 import tkmacosx as tkm
 import os
-import Client
 
 class Graphics:
+    """Holds display objects"""
     def __init__(self):
+        """Initialize all necessary objects"""
         # root window
         self.main_window = tk.Tk()
         self.main_window.iconbitmap("ChessPieces/AppIcon.ico")
@@ -17,7 +18,7 @@ class Graphics:
         self.main_window.columnconfigure(1, weight=1)
         self.main_window.rowconfigure(0, weight=1)
 
-        self.wking = PhotoImage(file = r"ChessPieces/WK.png")
+        self.wking = PhotoImage(file = r"ChessPieces/WK.png")       #images
         self.bking = PhotoImage(file = r"ChessPieces/BK.png")
         self.wbish = PhotoImage(file = r"ChessPieces/WB.png")
         self.bbish = PhotoImage(file = r"ChessPieces/BB.png")
@@ -30,7 +31,6 @@ class Graphics:
         self.wpawn = PhotoImage(file = r"ChessPieces/WP.png")
         self.bpawn = PhotoImage(file = r"ChessPieces/BP.png")
         self.none = PhotoImage(file = r"ChessPieces/None.png")
-        self.circle = PhotoImage(file = r"ChessPieces/Move.png")
 
         self.main_window.resizable(True, True)
 
@@ -89,11 +89,11 @@ class Graphics:
         self.statusLabel = tk.Label(self.connection, text="Choose Server to connect to. Leave blank for default.")
         self.statusLabel.grid(row=2, column=0, sticky = 'nsew')
 
-    
-
-
 class GraphicsUpdater:
+    """Includes methods to update the GUI and communicate with Client"""
     def __init__(self, client):
+        """Initialize vars, ad functionality to GUI
+        :param client: Client object"""
         self.board = Game()
         self.client = client
         self.graphics = Graphics()
@@ -127,6 +127,8 @@ class GraphicsUpdater:
                 self.graphics.boardArr[i][j].grid(row=8-j, column=i,  sticky="nsew")
  
     def showMoves(self, pos):
+        """Displays possible moves based on where user clicked
+        :param pos: list"""
         if self.selectedPiece != None:
             if pos in self.selectedPiece.simpleMoves:
                 self.board.move(self.selectedPiece, pos)
@@ -149,13 +151,13 @@ class GraphicsUpdater:
                 self.selectedPiece = None
                 selectedPieceName = ''
             
-        for i in range(8):
-            for j in range(8):
-                if not (i + j)%2 == 0:
-                        self.graphics.boardArr[i][j].configure(bg='#ffffff')
-                else:
-                        self.graphics.boardArr[i][j].configure(bg='#E1FF99')
-                    
+            for i in range(8):
+                for j in range(8):
+                    if not (i + j)%2 == 0:
+                            self.graphics.boardArr[i][j].configure(bg='#ffffff')
+                    else:
+                            self.graphics.boardArr[i][j].configure(bg='#E1FF99')
+
         if self.board.getPiece(pos) != None and self.board.getPiece(pos).color == self.nextMove and self.board.getPiece(pos).color == self.side:
             original = self.selectedPiece
             self.selectedPiece = self.board.getPiece(pos)
@@ -164,19 +166,19 @@ class GraphicsUpdater:
             if self.selectedPiece!=None:
                 for move in self.selectedPiece.simpleMoves:
                     self.graphics.boardArr[move[0]][move[1]].configure(bg = '#7f7f7f')
-            #boardArr[pos[0]][pos[1]].configure
         else:
             self.selectedPiece = None       
 
     def setBoard(self):
+        """Adds Images to Board, switches board around if playing as black"""
         if self.side == 'black' and self.once==0:
             self.once+=1
             for i in range(8):
                 for j in range(4):
-                    tempButton = (self.graphics.boardArr[i][7-j])
-                    self.graphics.boardArr[i][7-j] = (self.graphics.boardArr[i][j])
+                    tempButton = (self.graphics.boardArr[7-i][7-j])
+                    self.graphics.boardArr[7-i][7-j] = (self.graphics.boardArr[i][j])
                     self.graphics.boardArr[i][j] = tempButton
-                    self.graphics.boardArr[i][7-j].configure(command= lambda i=i, j=7-j:self.showMoves([i,j]))
+                    self.graphics.boardArr[7-i][7-j].configure(command= lambda i=7-i, j=7-j:self.showMoves([i,j]))
                     self.graphics.boardArr[i][j].configure(command= lambda i=i, j=j:self.showMoves([i,j]))
 
         for i in range(8):
@@ -211,6 +213,9 @@ class GraphicsUpdater:
                     self.graphics.boardArr[i][j].configure(image = self.graphics.none, height=100, width=100)
 
     def ChatSender(self, e):
+        """Posts a message to the chat when called by event
+        :param e: Event
+        :return: str <- cancels event call"""
         text = self.graphics.input_txt.get("0.0","end-1c")
         if text != '':
             message = self.client.username + ': ' + text
@@ -224,11 +229,16 @@ class GraphicsUpdater:
         return "break"
 
     def MsgReceive(self, msg):
+        """Displays a received message on the chat
+        :param msg: str"""
         self.graphics.chat.configure(state='normal')
         self.graphics.chat.insert(tk.END, '\n' + msg )
         self.graphics.chat.configure(state='disabled')
 
     def promote_ask(self, piece, pos):
+        """Prompts user to promote pawn
+        :param piece: Piece
+        :param pos: list"""
         prom_window = tk.Toplevel()
         prom_window.protocol("WM_DELETE_WINDOW", self.disable_event)
         prom_window.resizable(0,0)
@@ -261,6 +271,9 @@ class GraphicsUpdater:
             value4.grid(row=0, column=3)
 
     def promote(self, piece, value, window, pos):
+        """Promotes piece based on user input, closes prompt window
+        :param piece: Piece
+        :param pos: list"""
         if self.side=='white':
             self.board.promote(self.board.white[piece], value)
         if self.side=='black':
@@ -271,9 +284,14 @@ class GraphicsUpdater:
         window.destroy()
 
     def connectServer(self):
+        """Connects to server based on input"""
         self.connectChoice(self.graphics.server_ip.get("1.0","end-1c"), self.graphics.server_port.get("1.0","end-1c"), self.graphics.usernameEntry.get("1.0","end-1c"))
 
     def connectChoice(self, ip,port, uname):
+        """Connects to Server based on provided ip, port, and username. Displays status
+        :param ip: str
+        :param port: str
+        :param uname: str"""
         if ip == '' and port=='':
             ip = self.client.default_ip
             port = self.client.default_port
@@ -304,6 +322,7 @@ class GraphicsUpdater:
             self.graphics.statusLabel.configure(text='Port must be a number!') 
 
     def opponentAsk(self):
+        """Prompts user for an opponent to play against"""
         self.graphics.inputFrame.destroy()
         self.graphics.connection.title('Opponent Selection')
         self.graphics.usernameFrame.configure(text = 'Opponent: ')
@@ -313,9 +332,12 @@ class GraphicsUpdater:
         self.graphics.statusLabel.configure(text='Connected to Default Server as ' + self.client.username + ". Enter username of opponent to face, or leave blank for random.")
 
     def opponentHelper(self):
+        """Passes user input to select opponent"""
         self.opponentChoice(self.graphics.usernameEntry.get("1.0","end-1c"))
 
     def opponentChoice(self, opponent):
+        """Contacts server with name of opponent, displays status
+        :param opponent: str"""
         if opponent=='':
             opponent = 'None'
         self.client.comm(command='Start', data=opponent)
@@ -323,9 +345,9 @@ class GraphicsUpdater:
         self.graphics.usernameFrame.destroy()
         self.graphics.connection.protocol("WM_DELETE_WINDOW", self.close_all)
         self.client.ready = True
-        #self.client.gameLoop()
         
     def update(self):
+        """Updates all windows and idletasks. Also checks if there is a winner to display the end screen"""
         try:
             self.graphics.main_window.update()
             self.graphics.main_window.update_idletasks()
@@ -338,26 +360,28 @@ class GraphicsUpdater:
                 self.endScreen(self.board.winner)
         except:
             pass
-            
 
     def close_both(self):
+        """closes all windows and ends game"""
         self.graphics.connection.destroy()
         self.graphics.main_window.destroy()
         self.client.endGame = True
         self.client.running = False
 
-
     def close_all(self):
+        """Closes waiting window"""
         self.graphics.connection.destroy()
     
     def close_connection(self):
+        """Contacts Server to close connection and alert opponent of resignation"""
         self.client.comm(command='End', data='Quit')
         self.graphics.main_window.destroy()
         self.client.endGame = True
         self.client.running = False
         
-    
     def endScreen(self, winner):
+        """Displays info about game end
+        :param winner: str"""
         self.client.endGame = True
         screen = tk.Toplevel()
         screen.grab_set()
@@ -376,15 +400,7 @@ class GraphicsUpdater:
             self.update()
 
 
-class ClientGraphicsInterface:
-    def __init__(self):
-        self.client = Client.Client()
-        self.updater = GraphicsUpdater(self.client)
-        self.client.set_observer(self.updater)
-        self.client.gameLoop()
 
-
-c = ClientGraphicsInterface()
 
 
 

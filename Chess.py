@@ -1,17 +1,21 @@
 import copy
 
 class Piece():
+    """Represents a Chess Piece"""
     def __init__(self, color, piece, pos):
+        """Chess piece contains color, type of piece(pawn, king, etc.), Position on board, 
+            moves done with this piece, and all possible moves.
+        """
         self.color = color
         self.piece =  piece
         self.position = pos
         self.movesDone = 0
-        self.value = 0
-        self.possibleMoves = []
-        self.simpleMoves = []
-        self.pawnAttackMoves = []
+        self.possibleMoves = []         #2D array, containing a direction and all moves in that direction
+        self.simpleMoves = []           #1D array, containing all moves possible
+        self.pawnAttackMoves = []       #1D array, containing places where pawn can attack
         
     def simpleMoveMaker(self):
+        """Takes all possible moves and turns them into a 1D array called simpleMoves"""
         moves = []
         for arr in self.possibleMoves:
             for direction in arr:
@@ -21,7 +25,10 @@ class Piece():
         return self
 
 class Game:
+    """Chess Game object. Contains two sides, and a winner. Instead of a Board with pieces on it,
+        has all pieces from both sides and their positions"""
     def __init__(self):
+        """Create both sides and all the Piece objects for each side"""
         self.black = {'R1':0, 'N1':0, 'B1':0, 'Q0':0, 'K0':0, 'B2':0, 'N2':0, 'R2':0,
              'P1':0, 'P2':0, 'P3':0, 'P4':0, 'P5':0, 'P6':0, 'P7':0, 'P8':0}
 
@@ -53,36 +60,43 @@ class Game:
             self.white['P' + str(i)] = Piece('white', 'P', [i-1, 1])
         
         self.possibleMoves()
-        # self.white['N2'].position = [8,8]
-        # self.white['B2'].position = [8,8]
-        # self.white['P7'].position = [8,8]
-        # self.black['R1'].position = [6,5]
         
-    def otherSide(self, piece):            #Returns dictionary of same team as passed piece
+    def otherSide(self, piece: Piece):           
+        """Returns dictionary of other team as passed piece
+        :param piece: Piece object
+        :return: dict[str, Piece] of the opposite side
+        """
         if piece.color == 'black':
             return self.white
         if piece.color == 'white':
             return self.black
     
-    def ownSide(self, piece):              ##Returns dictionary of other team of passed piece
+    def ownSide(self, piece: Piece):
+        """Returns dictionary of same team as passed piece
+        :param piece: Piece object
+        :return: dict[str, Piece] of the opposite side
+        """
         if piece.color == 'black':
             return self.black
         if piece.color == 'white':
             return self.white
             
-    def allMoves(self, piece):             #Returns all standard moves for a piece, in a series of arrays
-        if piece.piece[0]=='K':
+    def allMoves(self, piece: Piece):             #Returns all standard moves for a piece, in a series of arrays
+        """Places moves in all directions possible based on given piece
+        :param piece: Piece object
+        :return: Piece object"""
+
+        if piece.piece[0]=='K':     #King moves in 8D, only 1 square
             x = piece.position[0]
             y = piece.position[1]
             piece.possibleMoves = [[[x + 1, y]], [[x-1,y]], [[x, y+1]], [[x, y-1]], [[x+1,y+1]], [[x+1, y-1]], [[x-1, y+1]], [[x-1, y-1]]]
 
-        if piece.piece[0] == 'N':
+        if piece.piece[0] == 'N':   #Knight moves in 8D, 2 sqaures along an axis and 1 along another
             x = piece.position[0]
             y = piece.position[1]
             piece.possibleMoves = [[[x + 2, y + 1]], [[x + 2, y - 1]], [[x - 2, y + 1]], [[x - 2, y - 1]], [[x + 1, y + 2]], [[x + 1, y - 2]], [[x - 1, y + 2]], [[x - 1, y - 2]]]
-            return piece
 
-        if piece.piece[0]=='Q':
+        if piece.piece[0]=='Q':     #Queen moves in 8D, Diagonal, Horizontal, or Vertical
             tr = []
             tl = []
             br = []
@@ -101,9 +115,8 @@ class Game:
                 left.append([piece.position[0]-i,piece.position[1]])
                 right.append([piece.position[0]+i,piece.position[1]])
             piece.possibleMoves = [up, down, left, right, tr, tl, br, bl]
-            return piece
 
-        if piece.piece[0] == 'P':
+        if piece.piece[0] == 'P':       #Pawns can move up to 2 squares on first move, and can move diagonally 1 square if enemy piece is there
             x = piece.position[0]
             y = piece.position[1]
 
@@ -128,13 +141,12 @@ class Game:
                         captures.append(take.position)
                 piece.pawnAttackMoves = [[x+1, y-1], [x-1, y-1]]
             piece.possibleMoves = []
-            for move in moves:
+            for move in moves:      #Append normal moves and captures
                 piece.possibleMoves.append([move])
             for move in captures:
                 piece.possibleMoves.append([move])
-            #piece.possibleMoves = [moves, captures]
 
-        if piece.piece[0] == 'B':
+        if piece.piece[0] == 'B':       #Bishops move in 4D, diagonally
             tr = []
             tl = []
             br = []
@@ -145,9 +157,8 @@ class Game:
                 tl.append([piece.position[0] - i, piece.position[1] + i])
                 bl.append([piece.position[0] - i, piece.position[1] - i])
             piece.possibleMoves = [tr, tl, br, bl]
-            return piece
         
-        if piece.piece[0]=='R':
+        if piece.piece[0]=='R':         #Rooks move in 4D, Horizontal or Vertical
             up = []
             down = []
             right = []
@@ -158,11 +169,12 @@ class Game:
                 left.append([piece.position[0]-i,piece.position[1]])
                 right.append([piece.position[0]+i,piece.position[1]])
             piece.possibleMoves = [up, down, left, right]
-            return piece
         return piece
 
-    def clean(self, piece):                #Removes invalid points (outside of board) from array of Moves
-        moves = []
+    def clean(self, piece: Piece):
+        """Removes points outside of board from all directions of movement:
+        :param piece: Piece object
+        :return: Piece object"""
         for i in range(len(piece.possibleMoves)):
             direction = []
             for point in piece.possibleMoves[i]:
@@ -171,13 +183,16 @@ class Game:
             piece.possibleMoves[i] = direction
         return piece
 
-    def ownPiece(self, piece):             #Removes places where own pieces are from Moves
+    def ownPiece(self, piece: Piece):             
+        """Removes moves where own pieces are standing
+        :param piece: Piece object
+        :return: Piece object"""
         for direction in range(len(piece.possibleMoves)):
             moves = piece.possibleMoves[direction][:]
             if piece.color == 'black':
                 for point in self.black.values():
                     if point.position in moves:
-                        moves =  moves[0:moves.index(point.position)]
+                        moves =  moves[0:moves.index(point.position)]       #If own piece in path, remove moves past the own piece, inclusive
             if piece.color == 'white':
                 for point in self.white.values():
                     if point.position in moves:
@@ -185,13 +200,16 @@ class Game:
             piece.possibleMoves[direction] = moves
         return piece
         
-    def otherPiece(self, piece):           #Removes places past where other pieces are from Moves
+    def otherPiece(self, piece: Piece):
+        """Removes moves past opponent pieces
+        :param piece: Piece object
+        :return: Piece object"""
         for direction in range(len(piece.possibleMoves)):
             moves = piece.possibleMoves[direction][:]
             if piece.color == 'black':
                 for point in self.white.values():
                     if point.position in moves:
-                        moves =  moves[0:moves.index(point.position)+1]
+                        moves =  moves[0:moves.index(point.position)+1]     #If enemy piece in path, remove moves past the enemy piece
             if piece.color == 'white':
                 for point in self.black.values():
                     if point.position in moves:
@@ -199,7 +217,11 @@ class Game:
             piece.possibleMoves[direction] = moves
         return piece
 
-    def isCheck(self, king, pos=False):               #Boolean: Whether passed king is in check
+    def isCheck(self, king: Piece, pos=False):
+        """Returns whether king passed as param is in check. True if in check. Can also pass in a position to compare against, instead of king's position
+        :param king: Piece
+        :param pos: list
+        :return: bool"""
         if pos != False:
             square = pos
         else:
@@ -210,36 +232,37 @@ class Game:
                     return True
         return False                            
 
-    def possibleMoves(self):               #Sets all valid moves to each piece
+    def possibleMoves(self):               
+        """Sets all valid moves to each piece"""
         for piece in self.white:
             self.otherPiece(self.ownPiece(self.clean(self.allMoves(self.white[piece]))))
-            self.white[piece].simpleMoveMaker()         #Removes outside array from Moves array, makes simpler to implement possible moves.
+            self.white[piece].simpleMoveMaker()         #Turns array of moves in each direction into array of moves
         for piece in self.black:
             self.otherPiece(self.ownPiece(self.clean(self.allMoves(self.black[piece]))))
             self.black[piece].simpleMoveMaker()
 
         #Setup Castling
-        for piece in self.white:
-            if piece == 'R1':
-                if self.white[piece].movesDone == 0 and self.white['K0'].movesDone == 0 and not self.isCheck(self.white['K0']): 
-                    if [3,0] in self.white[piece].simpleMoves and not self.isCheck(self.white['K0'], pos = [3,0]):
-                        self.white['K0'].simpleMoves.append([2,0])
-            if piece == 'R2':
-                if self.white[piece].movesDone == 0 and self.white['K0'].movesDone == 0 and not self.isCheck(self.white['K0']): 
-                    if [5,0] in self.white[piece].simpleMoves and not self.isCheck(self.white['K0'], pos = [5,0]):
-                        self.white['K0'].simpleMoves.append([6,0])
-    
-        for piece in self.black:
-            if piece == 'R1':
-                if self.black[piece].movesDone == 0 and self.black['K0'].movesDone == 0 and not self.isCheck(self.black['K0']): 
+
+        piece = 'R1'
+        if self.white[piece].movesDone == 0 and self.white['K0'].movesDone == 0 and not self.isCheck(self.white['K0']): #If neither rook nor king have moved, and king would not pass through check, and king not in check
+            if [3,0] in self.white[piece].simpleMoves and not self.isCheck(self.white['K0'], pos = [3,0]):
+                self.white['K0'].simpleMoves.append([2,0])
+        if self.black[piece].movesDone == 0 and self.black['K0'].movesDone == 0 and not self.isCheck(self.black['K0']): 
                     if [3,7] in self.black[piece].simpleMoves and not self.isCheck(self.black['K0'], pos = [3,7]):
                         self.black['K0'].simpleMoves.append([2,7])
-            if piece == 'R2':
-                if self.black[piece].movesDone == 0 and self.black['K0'].movesDone == 0 and not self.isCheck(self.black['K0']): 
+                
+        piece = "R2"
+        if self.white[piece].movesDone == 0 and self.white['K0'].movesDone == 0 and not self.isCheck(self.white['K0']): 
+            if [5,0] in self.white[piece].simpleMoves and not self.isCheck(self.white['K0'], pos = [5,0]):
+                self.white['K0'].simpleMoves.append([6,0])
+        if self.black[piece].movesDone == 0 and self.black['K0'].movesDone == 0 and not self.isCheck(self.black['K0']): 
                     if [5,7] in self.black[piece].simpleMoves and not self.isCheck(self.black['K0'], pos = [5,7]):
                         self.black['K0'].simpleMoves.append([6,7])
     
-    def getPiece(self, position):          #Gets piece at a board position
+    def getPiece(self, position):          
+        """Gets piece at a board position
+        :param position: list
+        :return: Piece or None"""
         for piece in self.black.values():
             if piece.position == position:
                 return piece
@@ -248,7 +271,10 @@ class Game:
                 return piece
         return None
         
-    def moveChecker(self, color):          #Removes moves that lead to own check from options 
+    def moveChecker(self, color):          
+        """Removes moves that lead to own check of from options. Returns False if there are no possible moves for provided side
+        :param color: str
+        :return: bool""" 
         original = copy.deepcopy(self)
         possible = False
         if color == 'white':
@@ -277,16 +303,21 @@ class Game:
                 self.black[piece].simpleMoves = moves
         return possible
 
-    def capture(self, piece, move):
+    def capture(self, piece: Piece, move):
+        """Moves Pieces and Captures if necessary
+        :param piece: Piece
+        :param move: list"""
         banish = [20,20]
         if self.getPiece(move) != None:
             self.getPiece(move).position = banish
+        #En Passant
         elif piece.piece[0]=='P' :
             if move in piece.pawnAttackMoves and move in piece.simpleMoves:
                 if piece.color == 'white':
                     self.getPiece([move[0],move[1]-1]).position = banish
                 else:
                     self.getPiece([move[0],move[1]+1]).position = banish
+        #Castling
         elif piece.piece[0] == 'K' and piece.movesDone == 0:
             if move == [2,0]:
                 self.ownSide(piece)['R1'].position = [3,0]
@@ -301,21 +332,25 @@ class Game:
                 self.ownSide(piece)['R2'].position = [5,7]
                 self.ownSide(piece)['R2'].movesDone +=1
         piece.position = move       
-        piece.movesDone +=1
+        piece.movesDone += 1
 
-    def move(self, piece, move):           #Moves a piece and updates board
+    def move(self, piece: Piece, move):           
+        """Moves a piece and updates board for next move. checks for checkmate or stalemate.
+        :param piece: Piece
+        :param move: list"""
         previousPos = piece.position
         self.capture(piece,move)
         self.possibleMoves()
-        #en passant check
+        #add en passant moves
         if piece.piece[0] == 'P' and piece.movesDone == 1:
             if piece.color == 'black':
                 for i in range(1,9):
-                    if [previousPos[0], previousPos[1] - 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] - 1] not in self.otherSide(piece)['P' + str(i)].simpleMoves:
+                    #For every pawn on enemy side, if moving 1 square would place moved pawn in capture position, add that position to the enemy pawn
+                    if [previousPos[0], previousPos[1] - 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] - 1]:
                         self.otherSide(piece)['P' + str(i)].simpleMoves.append([previousPos[0], previousPos[1] - 1])
             if piece.color == 'white':
                 for i in range(1,9):
-                    if [previousPos[0], previousPos[1] + 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] + 1] not in self.otherSide(piece)['P' + str(i)].simpleMoves:
+                    if [previousPos[0], previousPos[1] + 1] in self.otherSide(piece)['P' + str(i)].pawnAttackMoves and [previousPos[0], previousPos[1] + 1]:
                         self.otherSide(piece)['P' + str(i)].simpleMoves.append([previousPos[0], previousPos[1] + 1])
                         
         if self.moveChecker(self.otherSide(piece)['K0'].color) == False:                  #Checks for end
@@ -324,13 +359,11 @@ class Game:
             else:
                 self.winner = 'stalemate'
 
-    def promote(self, piece, value):
+    def promote(self, piece: Piece, value):
+        """Promote a piece based on passed value
+        :param piece: Piece
+        :param value: str"""
         piece.piece = value
-                
-    def update(self):                      #Updates the board object
-        pass
-        #self.moveChecker()
-
 
 
 
